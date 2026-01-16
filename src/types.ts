@@ -96,8 +96,8 @@ export interface TypeScriptOptions {
   readonly useJsExtension?: boolean | undefined;
   /**
    * Import path prefix for plugin enums.
-   * Plugin enums are generated to node_modules/.omnify/enum/ and imported from this path.
-   * @example '@omnify/enum' - for node_modules/.omnify/enum with package alias
+   * Plugin enums are generated to node_modules/@omnify-client/enum/ and imported from this path.
+   * @example '@omnify-client/enum' - for node_modules/@omnify-client/enum with package alias
    * @default '../enum/plugin' - legacy behavior (plugin enums in enum/plugin/)
    */
   readonly pluginEnumImportPrefix?: string | undefined;
