@@ -1,5 +1,5 @@
 
-> @famgia/omnify-typescript@0.0.145 build /Users/f.satoshi/Herd/omnify-ts/packages/omnify-plugin-typescript-generator
+> @famgia/omnify-typescript@0.0.146 build /Users/f.satoshi/Herd/omnify-ts/packages/omnify-plugin-typescript-generator
 > tsup
 
 [34mCLI[39m Building entry: src/index.ts, src/plugin.ts
@@ -21,28 +21,28 @@
 
 [warn] [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1m"import.meta" is not available with the "cjs" output format and will be empty[0m [empty-import-meta]
 
-    src/stubs.ts:9:33:
-[37m      9 │ const __filename = fileURLToPath([32mimport.meta[37m.url);
-        ╵                                  [32m~~~~~~~~~~~[0m
+    src/stubs.ts:31:33:
+[37m      31 │ const __filename = fileURLToPath([32mimport.meta[37m.url);
+         ╵                                  [32m~~~~~~~~~~~[0m
 
   You need to set the output format to "esm" for "import.meta" to work correctly.
 
 
-[32mESM[39m [1mdist/index.js              [22m[32m5.93 KB[39m
+[32mCJS[39m [1mdist/index.cjs      [22m[32m85.18 KB[39m
+[32mCJS[39m [1mdist/plugin.cjs     [22m[32m86.81 KB[39m
+[32mCJS[39m [1mdist/plugin.cjs.map [22m[32m166.58 KB[39m
+[32mCJS[39m [1mdist/index.cjs.map  [22m[32m161.69 KB[39m
+[32mCJS[39m ⚡️ Build success in 29ms
+[32mESM[39m [1mdist/index.js              [22m[32m4.51 KB[39m
+[32mESM[39m [1mdist/chunk-PA7B7ZFK.js     [22m[32m78.46 KB[39m
 [32mESM[39m [1mdist/plugin.js             [22m[32m7.41 KB[39m
-[32mESM[39m [1mdist/chunk-XKUNDZDN.js     [22m[32m77.58 KB[39m
-[32mESM[39m [1mdist/index.js.map          [22m[32m10.32 KB[39m
+[32mESM[39m [1mdist/index.js.map          [22m[32m8.91 KB[39m
 [32mESM[39m [1mdist/plugin.js.map         [22m[32m15.67 KB[39m
-[32mESM[39m [1mdist/chunk-XKUNDZDN.js.map [22m[32m149.17 KB[39m
-[32mESM[39m ⚡️ Build success in 25ms
-[32mCJS[39m [1mdist/plugin.cjs     [22m[32m85.94 KB[39m
-[32mCJS[39m [1mdist/index.cjs      [22m[32m85.73 KB[39m
-[32mCJS[39m [1mdist/index.cjs.map  [22m[32m161.15 KB[39m
-[32mCJS[39m [1mdist/plugin.cjs.map [22m[32m164.63 KB[39m
-[32mCJS[39m ⚡️ Build success in 25ms
+[32mESM[39m [1mdist/chunk-PA7B7ZFK.js.map [22m[32m151.12 KB[39m
+[32mESM[39m ⚡️ Build success in 30ms
 [34mDTS[39m Build start
-[32mDTS[39m ⚡️ Build success in 879ms
-[32mDTS[39m [1mdist/index.d.ts   [22m[32m16.67 KB[39m
+[32mDTS[39m ⚡️ Build success in 843ms
+[32mDTS[39m [1mdist/index.d.ts   [22m[32m16.81 KB[39m
 [32mDTS[39m [1mdist/plugin.d.ts  [22m[32m3.08 KB[39m
-[32mDTS[39m [1mdist/index.d.cts  [22m[32m16.67 KB[39m
+[32mDTS[39m [1mdist/index.d.cts  [22m[32m16.81 KB[39m
 [32mDTS[39m [1mdist/plugin.d.cts [22m[32m3.08 KB[39m

@@ -1,5 +1,27 @@
 /**
  * Stub file utilities for React/Ant Design/TanStack Query utilities.
+ * 
+ * NOTE: Stub files are NO LONGER generated into projects.
+ * All runtime utilities should be imported from @famgia/omnify-client-react:
+ * 
+ * ```typescript
+ * import {
+ *   // Components
+ *   JapaneseNameField,
+ *   JapaneseAddressField,
+ *   JapaneseBankField,
+ *   
+ *   // Hooks
+ *   useFormMutation,
+ *   
+ *   // Utilities
+ *   zodRule,
+ *   setZodLocale,
+ *   kanaString,
+ * } from '@famgia/omnify-client-react';
+ * ```
+ * 
+ * Only schema files (editable) and schema enums are generated into the project.
  */
 
 import fs from 'fs';
@@ -9,60 +31,16 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+interface StubFile {
+  stub: string;
+  output: string;
+  indexExport: string;
+}
+
 /**
- * Stub file definitions
+ * Stub file definitions - empty since all utilities come from @famgia/omnify-client-react
  */
-export const STUB_FILES = [
-  // Components
-  {
-    stub: 'JapaneseNameField.tsx.stub',
-    output: 'components/JapaneseNameField.tsx',
-    indexExport: '', // Handled by components-index.ts.stub
-  },
-  {
-    stub: 'JapaneseAddressField.tsx.stub',
-    output: 'components/JapaneseAddressField.tsx',
-    indexExport: '', // Handled by components-index.ts.stub
-  },
-  {
-    stub: 'JapaneseBankField.tsx.stub',
-    output: 'components/JapaneseBankField.tsx',
-    indexExport: '', // Handled by components-index.ts.stub
-  },
-  {
-    stub: 'components-index.ts.stub',
-    output: 'components/index.ts',
-    indexExport: '', // This IS the index
-  },
-  // Hooks
-  {
-    stub: 'use-form-mutation.ts.stub',
-    output: 'hooks/use-form-mutation.ts',
-    indexExport: `export { useFormMutation } from './use-form-mutation';\n`,
-  },
-  // Lib
-  {
-    stub: 'zod-i18n.ts.stub',
-    output: 'lib/zod-i18n.ts',
-    indexExport: `export { setZodLocale, getZodLocale, getZodMessage } from './zod-i18n';\n`,
-  },
-  {
-    stub: 'form-validation.ts.stub',
-    output: 'lib/form-validation.ts',
-    indexExport: `export { zodRule, requiredRule } from './form-validation';\nexport * from './rules';\n`,
-  },
-  // Rules
-  {
-    stub: 'rules/kana.ts.stub',
-    output: 'lib/rules/kana.ts',
-    indexExport: '',  // Will be handled by rules/index.ts
-  },
-  {
-    stub: 'rules/index.ts.stub',
-    output: 'lib/rules/index.ts',
-    indexExport: '',  // Already exported via form-validation
-  },
-] as const;
+export const STUB_FILES: readonly StubFile[] = [];
 
 export interface CopyStubsOptions {
   /** Target directory (e.g., 'resources/ts/omnify') */

@@ -1656,7 +1656,7 @@ function formatZodSchemasSection(schemaName, zodSchemas, displayNames, excludedF
 `);
   return parts.join("");
 }
-function formatZodModelFile(schemaName, ext = "") {
+function formatZodModelFile(schemaName, ext = "", basePrefix = "./base") {
   const lowerName = schemaName.charAt(0).toLowerCase() + schemaName.slice(1);
   return `/**
  * ${schemaName} Model
@@ -1667,7 +1667,7 @@ function formatZodModelFile(schemaName, ext = "") {
  */
 
 import { z } from 'zod';
-import type { ${schemaName} as ${schemaName}Base } from './base/${schemaName}${ext}';
+import type { ${schemaName} as ${schemaName}Base } from '${basePrefix}/${schemaName}${ext}';
 import {
   base${schemaName}Schemas,
   base${schemaName}CreateSchema,
@@ -1676,7 +1676,7 @@ import {
   get${schemaName}Label,
   get${schemaName}FieldLabel,
   get${schemaName}FieldPlaceholder,
-} from './base/${schemaName}${ext}';
+} from '${basePrefix}/${schemaName}${ext}';
 
 // ============================================================================
 // Types (extend or re-export)
@@ -1830,18 +1830,20 @@ function generateBaseInterfaceFile(schemaName, schemas, options) {
   if (dateImports.dateTime) commonImports.push("DateTimeString");
   if (dateImports.date) commonImports.push("DateString");
   const ext = getImportExt2(options);
+  const isNodeModulesBase = options.baseImportPrefix?.startsWith("@");
+  const commonImportPath = isNodeModulesBase ? "./common" : "../common";
   if (commonImports.length > 0) {
-    parts.push(`import type { ${commonImports.join(", ")} } from '../common${ext}';
+    parts.push(`import type { ${commonImports.join(", ")} } from '${commonImportPath}${ext}';
 `);
   }
   if (iface.enumDependencies && iface.enumDependencies.length > 0) {
-    const enumPrefix = options.enumImportPrefix ? `../${options.enumImportPrefix}` : "../enum";
+    const schemaEnumPrefix = options.schemaEnumImportPrefix ?? (options.enumImportPrefix ? `../${options.enumImportPrefix}` : "../enum");
     const pluginEnumNames = new Set(
       options.pluginEnums ? Array.from(options.pluginEnums.keys()) : []
     );
-    const pluginEnumPrefix = options.pluginEnumImportPrefix ?? `${enumPrefix}/plugin`;
+    const pluginEnumPrefix = options.pluginEnumImportPrefix ?? `${schemaEnumPrefix}/plugin`;
     for (const enumName of iface.enumDependencies) {
-      const enumPath = pluginEnumNames.has(enumName) ? `${pluginEnumPrefix}/${enumName}${ext}` : `${enumPrefix}/${enumName}${ext}`;
+      const enumPath = pluginEnumNames.has(enumName) ? `${pluginEnumPrefix}/${enumName}${ext}` : `${schemaEnumPrefix}/${enumName}${ext}`;
       parts.push(`import { ${enumName} } from '${enumPath}';
 `);
     }
@@ -1870,7 +1872,8 @@ function generateBaseInterfaceFile(schemaName, schemas, options) {
     filePath: `base/${schemaName}.ts`,
     content: parts.join(""),
     types: [schemaName, `${schemaName}Create`, `${schemaName}Update`],
-    overwrite: true
+    overwrite: true,
+    category: "base"
   };
 }
 function generateEnumFile(enumDef, isPluginEnum = false) {
@@ -1898,10 +1901,11 @@ function generateTypeAliasFile(alias) {
   };
 }
 function generateModelFile(schemaName, options) {
+  const basePrefix = options.baseImportPrefix ?? "./base";
   if (options.generateZodSchemas) {
     return {
       filePath: `${schemaName}.ts`,
-      content: formatZodModelFile(schemaName, getImportExt2(options)),
+      content: formatZodModelFile(schemaName, getImportExt2(options), basePrefix),
       types: [schemaName],
       overwrite: false
       // Never overwrite user models
@@ -1909,7 +1913,7 @@ function generateModelFile(schemaName, options) {
   }
   const parts = [generateModelHeader(schemaName)];
   const ext = getImportExt2(options);
-  parts.push(`import type { ${schemaName} as ${schemaName}Base } from './base/${schemaName}${ext}';
+  parts.push(`import type { ${schemaName} as ${schemaName}Base } from '${basePrefix}/${schemaName}${ext}';
 
 `);
   parts.push(`/**
@@ -2058,11 +2062,13 @@ export type DateTimeString = string;
  */
 export type DateString = string;
 `;
+  const isNodeModulesBase = options.baseImportPrefix?.startsWith("@");
   return {
     filePath: "common.ts",
     content,
     types: ["LocaleMap", "Locale", "ValidationRule", "DateTimeString", "DateString"],
-    overwrite: true
+    overwrite: true,
+    category: isNodeModulesBase ? "base" : void 0
   };
 }
 function generateI18nFile(options) {
@@ -2091,8 +2097,10 @@ function generateI18nFile(options) {
   }
   const messagesJson = JSON.stringify(mergedMessages, null, 2);
   const ext = getImportExt2(options);
+  const isNodeModulesBase = options.baseImportPrefix?.startsWith("@");
+  const commonImportPath = isNodeModulesBase ? `${options.baseImportPrefix}/common` : "./common";
   const content = `${generateBaseHeader()}
-import type { LocaleMap } from './common${ext}';
+import type { LocaleMap } from '${commonImportPath}${ext}';
 
 /**
  * Default locale for this project.
@@ -2176,9 +2184,11 @@ export function getMessages(locale: string): Record<string, string> {
 function generateIndexFile(schemas, enums, pluginEnums, typeAliases, options) {
   const parts = [generateBaseHeader()];
   const ext = getImportExt2(options);
+  const isNodeModulesBase = options.baseImportPrefix?.startsWith("@");
+  const commonImportPath = isNodeModulesBase ? `${options.baseImportPrefix}/common` : "./common";
   parts.push(`// Common Types
 `);
-  parts.push(`export type { LocaleMap, Locale, ValidationRule, DateTimeString, DateString } from './common${ext}';
+  parts.push(`export type { LocaleMap, Locale, ValidationRule, DateTimeString, DateString } from '${commonImportPath}${ext}';
 
 `);
   parts.push(`// i18n (Internationalization)
@@ -2294,6 +2304,7 @@ function generateIndexFile(schemas, enums, pluginEnums, typeAliases, options) {
 `);
     }
   } else {
+    const basePrefix = options.baseImportPrefix ?? "./base";
     parts.push(`// Models (with Create/Update utility types)
 `);
     for (const schema of Object.values(schemas)) {
@@ -2301,7 +2312,7 @@ function generateIndexFile(schemas, enums, pluginEnums, typeAliases, options) {
       if (schema.options?.hidden === true) continue;
       parts.push(`export type { ${schema.name} } from './${schema.name}${ext}';
 `);
-      parts.push(`export type { ${schema.name}Create, ${schema.name}Update } from './base/${schema.name}${ext}';
+      parts.push(`export type { ${schema.name}Create, ${schema.name}Update } from '${basePrefix}/${schema.name}${ext}';
 `);
     }
     if (options.generateRules) {
@@ -2415,67 +2426,7 @@ var import_url = require("url");
 var import_meta = {};
 var __filename = (0, import_url.fileURLToPath)(import_meta.url);
 var __dirname = import_path.default.dirname(__filename);
-var STUB_FILES = [
-  // Components
-  {
-    stub: "JapaneseNameField.tsx.stub",
-    output: "components/JapaneseNameField.tsx",
-    indexExport: ""
-    // Handled by components-index.ts.stub
-  },
-  {
-    stub: "JapaneseAddressField.tsx.stub",
-    output: "components/JapaneseAddressField.tsx",
-    indexExport: ""
-    // Handled by components-index.ts.stub
-  },
-  {
-    stub: "JapaneseBankField.tsx.stub",
-    output: "components/JapaneseBankField.tsx",
-    indexExport: ""
-    // Handled by components-index.ts.stub
-  },
-  {
-    stub: "components-index.ts.stub",
-    output: "components/index.ts",
-    indexExport: ""
-    // This IS the index
-  },
-  // Hooks
-  {
-    stub: "use-form-mutation.ts.stub",
-    output: "hooks/use-form-mutation.ts",
-    indexExport: `export { useFormMutation } from './use-form-mutation';
-`
-  },
-  // Lib
-  {
-    stub: "zod-i18n.ts.stub",
-    output: "lib/zod-i18n.ts",
-    indexExport: `export { setZodLocale, getZodLocale, getZodMessage } from './zod-i18n';
-`
-  },
-  {
-    stub: "form-validation.ts.stub",
-    output: "lib/form-validation.ts",
-    indexExport: `export { zodRule, requiredRule } from './form-validation';
-export * from './rules';
-`
-  },
-  // Rules
-  {
-    stub: "rules/kana.ts.stub",
-    output: "lib/rules/kana.ts",
-    indexExport: ""
-    // Will be handled by rules/index.ts
-  },
-  {
-    stub: "rules/index.ts.stub",
-    output: "lib/rules/index.ts",
-    indexExport: ""
-    // Already exported via form-validation
-  }
-];
+var STUB_FILES = [];
 function copyStubs(options) {
   const { targetDir, skipIfExists = false } = options;
   const stubsDir = import_path.default.join(__dirname, "..", "stubs");

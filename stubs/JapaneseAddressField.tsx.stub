@@ -7,8 +7,7 @@ import { Form, Input, Select, Button, message } from 'antd';
 import { SearchOutlined, LoadingOutlined } from '@ant-design/icons';
 import type { FormInstance } from 'antd';
 import type { RuleObject } from 'antd/es/form';
-import { zodRule } from '../lib/form-validation';
-import { getZodLocale } from '../lib/zod-i18n';
+import { zodRule, getZodLocale } from '@famgia/omnify-client-react';
 import { Prefecture, PrefectureValues, getPrefectureLabel, getPrefectureExtra } from '../schemas';
 
 interface I18nConfig {

@@ -1,5 +1,5 @@
 
-> @famgia/omnify-typescript@0.0.145 test /Users/f.satoshi/Herd/omnify-ts/packages/omnify-plugin-typescript-generator
+> @famgia/omnify-typescript@0.0.146 test /Users/f.satoshi/Herd/omnify-ts/packages/omnify-plugin-typescript-generator
 > vitest run --passWithNoTests
 
 

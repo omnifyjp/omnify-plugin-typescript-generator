@@ -9,10 +9,11 @@ import { LocaleConfig, CustomTypeDefinition, PluginEnumDefinition, PropertyDefin
 /**
  * File category for organizing output.
  * - schema: Model schemas (user-editable)
+ * - base: Base files (auto-generated, goes to node_modules/@omnify-client/schemas)
  * - enum: Schema enums (user-editable)
- * - plugin-enum: Plugin enums (auto-generated, goes to node_modules/.omnify)
+ * - plugin-enum: Plugin enums (auto-generated, goes to node_modules/@omnify-client/enum)
  */
-type FileCategory = 'schema' | 'enum' | 'plugin-enum';
+type FileCategory = 'schema' | 'base' | 'enum' | 'plugin-enum';
 /**
  * Generated TypeScript file.
  */
@@ -99,6 +100,20 @@ interface TypeScriptOptions {
      * @default '../enum/plugin' - legacy behavior (plugin enums in enum/plugin/)
      */
     readonly pluginEnumImportPrefix?: string | undefined;
+    /**
+     * Import path prefix for base schema files.
+     * Base files are generated to node_modules/@omnify-client/schemas/ and imported from this path.
+     * @example '@omnify-client/schemas' - for node_modules/@omnify-client/schemas with package alias
+     * @default './base' - legacy behavior (base files in schemas/base/)
+     */
+    readonly baseImportPrefix?: string | undefined;
+    /**
+     * Import path prefix for schema enums (used in base files).
+     * When base files are in node_modules, they need absolute paths to import schema enums.
+     * @example '@omnify/enum' - for user's enum folder with alias
+     * @default '../enum' - relative path from base/ folder
+     */
+    readonly schemaEnumImportPrefix?: string | undefined;
 }
 /**
  * TypeScript property definition.
@@ -368,47 +383,38 @@ declare function generateRulesFiles(schemas: SchemaCollection, options?: TypeScr
 
 /**
  * Stub file utilities for React/Ant Design/TanStack Query utilities.
+ *
+ * NOTE: Stub files are NO LONGER generated into projects.
+ * All runtime utilities should be imported from @famgia/omnify-client-react:
+ *
+ * ```typescript
+ * import {
+ *   // Components
+ *   JapaneseNameField,
+ *   JapaneseAddressField,
+ *   JapaneseBankField,
+ *
+ *   // Hooks
+ *   useFormMutation,
+ *
+ *   // Utilities
+ *   zodRule,
+ *   setZodLocale,
+ *   kanaString,
+ * } from '@famgia/omnify-client-react';
+ * ```
+ *
+ * Only schema files (editable) and schema enums are generated into the project.
  */
+interface StubFile {
+    stub: string;
+    output: string;
+    indexExport: string;
+}
 /**
- * Stub file definitions
+ * Stub file definitions - empty since all utilities come from @famgia/omnify-client-react
  */
-declare const STUB_FILES: readonly [{
-    readonly stub: "JapaneseNameField.tsx.stub";
-    readonly output: "components/JapaneseNameField.tsx";
-    readonly indexExport: "";
-}, {
-    readonly stub: "JapaneseAddressField.tsx.stub";
-    readonly output: "components/JapaneseAddressField.tsx";
-    readonly indexExport: "";
-}, {
-    readonly stub: "JapaneseBankField.tsx.stub";
-    readonly output: "components/JapaneseBankField.tsx";
-    readonly indexExport: "";
-}, {
-    readonly stub: "components-index.ts.stub";
-    readonly output: "components/index.ts";
-    readonly indexExport: "";
-}, {
-    readonly stub: "use-form-mutation.ts.stub";
-    readonly output: "hooks/use-form-mutation.ts";
-    readonly indexExport: "export { useFormMutation } from './use-form-mutation';\n";
-}, {
-    readonly stub: "zod-i18n.ts.stub";
-    readonly output: "lib/zod-i18n.ts";
-    readonly indexExport: "export { setZodLocale, getZodLocale, getZodMessage } from './zod-i18n';\n";
-}, {
-    readonly stub: "form-validation.ts.stub";
-    readonly output: "lib/form-validation.ts";
-    readonly indexExport: "export { zodRule, requiredRule } from './form-validation';\nexport * from './rules';\n";
-}, {
-    readonly stub: "rules/kana.ts.stub";
-    readonly output: "lib/rules/kana.ts";
-    readonly indexExport: "";
-}, {
-    readonly stub: "rules/index.ts.stub";
-    readonly output: "lib/rules/index.ts";
-    readonly indexExport: "";
-}];
+declare const STUB_FILES: readonly StubFile[];
 interface CopyStubsOptions {
     /** Target directory (e.g., 'resources/ts/omnify') */
     targetDir: string;

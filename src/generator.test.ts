@@ -876,4 +876,158 @@ describe('TypeScript Generator - Plugin Enums', () => {
       expect(indexFile?.content).toContain("from '@omnify-client/enum/Prefecture'"); // Plugin enum
     });
   });
+
+  describe('Base Files in node_modules', () => {
+    const schemasWithEnum: SchemaCollection = {
+      User: {
+        name: 'User',
+        kind: 'object',
+        filePath: '/test/user.yaml',
+        relativePath: '/test/user.yaml',
+        properties: {
+          id: { type: 'Integer' },
+          name: { type: 'String' },
+          status: { type: 'EnumRef', enum: 'UserStatus' } as any,
+          prefecture: { type: 'EnumRef', enum: 'Prefecture' } as any,
+          created_at: { type: 'DateTime' },
+        },
+      },
+      UserStatus: {
+        name: 'UserStatus',
+        kind: 'enum',
+        filePath: '/test/user-status.yaml',
+        relativePath: '/test/user-status.yaml',
+        values: ['active', 'inactive'],
+      },
+    };
+
+    const nodeModulesPluginEnums = new Map([
+      ['Prefecture', {
+        name: 'Prefecture',
+        values: [
+          { value: 'tokyo', label: { ja: '東京', en: 'Tokyo' } },
+          { value: 'osaka', label: { ja: '大阪', en: 'Osaka' } },
+        ],
+      }],
+    ]);
+
+    it('base files use schemaEnumImportPrefix for schema enums', () => {
+      const result = generateTypeScript(schemasWithEnum, {
+        pluginEnums: nodeModulesPluginEnums,
+        pluginEnumImportPrefix: '@omnify-client/enum',
+        schemaEnumImportPrefix: '@omnify/enum',
+        baseImportPrefix: '@omnify-client/schemas',
+      });
+
+      const userBaseFile = result.find(f => f.filePath === 'base/User.ts');
+      expect(userBaseFile).toBeDefined();
+
+      // Schema enum (UserStatus) should use schemaEnumImportPrefix
+      expect(userBaseFile?.content).toContain("from '@omnify/enum/UserStatus'");
+
+      // Plugin enum (Prefecture) should use pluginEnumImportPrefix
+      expect(userBaseFile?.content).toContain("from '@omnify-client/enum/Prefecture'");
+    });
+
+    it('common.ts has base category when baseImportPrefix starts with @', () => {
+      const result = generateTypeScript(schemasWithEnum, {
+        baseImportPrefix: '@omnify-client/schemas',
+      });
+
+      const commonFile = result.find(f => f.filePath === 'common.ts');
+      expect(commonFile).toBeDefined();
+      expect(commonFile?.category).toBe('base');
+    });
+
+    it('common.ts has no category when baseImportPrefix is relative', () => {
+      const result = generateTypeScript(schemasWithEnum, {
+        baseImportPrefix: './base',
+      });
+
+      const commonFile = result.find(f => f.filePath === 'common.ts');
+      expect(commonFile).toBeDefined();
+      expect(commonFile?.category).toBeUndefined();
+    });
+
+    it('base files import common.ts with relative path when in node_modules', () => {
+      const result = generateTypeScript(schemasWithEnum, {
+        baseImportPrefix: '@omnify-client/schemas',
+      });
+
+      const userBaseFile = result.find(f => f.filePath === 'base/User.ts');
+      expect(userBaseFile).toBeDefined();
+
+      // When in node_modules, common.ts is alongside base files
+      expect(userBaseFile?.content).toContain("from './common'");
+      expect(userBaseFile?.content).not.toContain("from '../common'");
+    });
+
+    it('base files import common.ts with parent path when not in node_modules', () => {
+      const result = generateTypeScript(schemasWithEnum, {
+        baseImportPrefix: './base',
+      });
+
+      const userBaseFile = result.find(f => f.filePath === 'base/User.ts');
+      expect(userBaseFile).toBeDefined();
+
+      // When in schemas/base/, common.ts is in parent folder
+      expect(userBaseFile?.content).toContain("from '../common'");
+      expect(userBaseFile?.content).not.toContain("from './common'");
+    });
+
+    it('model files import base types from baseImportPrefix', () => {
+      const result = generateTypeScript(schemasWithEnum, {
+        baseImportPrefix: '@omnify-client/schemas',
+        generateZodSchemas: true,
+      });
+
+      // Model file has filePath 'User.ts' with category 'schema'
+      const userModelFile = result.find(f => f.filePath === 'User.ts' && f.category === 'schema');
+      // If not found, try without category (fallback)
+      const fallbackFile = result.find(f => f.filePath === 'User.ts' && !f.filePath.includes('base/'));
+      const modelFile = userModelFile || fallbackFile;
+      expect(modelFile).toBeDefined();
+
+      // Model file should import from baseImportPrefix
+      expect(modelFile?.content).toContain("from '@omnify-client/schemas/User'");
+    });
+
+    it('index.ts imports common from baseImportPrefix when in node_modules', () => {
+      const result = generateTypeScript(schemasWithEnum, {
+        baseImportPrefix: '@omnify-client/schemas',
+      });
+
+      const indexFile = result.find(f => f.filePath === 'index.ts');
+      expect(indexFile).toBeDefined();
+
+      // Should import common types from node_modules path
+      expect(indexFile?.content).toContain("from '@omnify-client/schemas/common'");
+      expect(indexFile?.content).not.toContain("from './common'");
+    });
+
+    it('index.ts imports common with relative path when not in node_modules', () => {
+      const result = generateTypeScript(schemasWithEnum, {
+        baseImportPrefix: './base',
+      });
+
+      const indexFile = result.find(f => f.filePath === 'index.ts');
+      expect(indexFile).toBeDefined();
+
+      // Should import common types from relative path
+      expect(indexFile?.content).toContain("from './common'");
+    });
+
+    it('i18n.ts imports LocaleMap from baseImportPrefix when in node_modules', () => {
+      const result = generateTypeScript(schemasWithEnum, {
+        baseImportPrefix: '@omnify-client/schemas',
+      });
+
+      const i18nFile = result.find(f => f.filePath === 'i18n.ts');
+      expect(i18nFile).toBeDefined();
+
+      // Should import LocaleMap from node_modules path
+      expect(i18nFile?.content).toContain("from '@omnify-client/schemas/common'");
+      expect(i18nFile?.content).not.toContain("from './common'");
+    });
+  });
 });

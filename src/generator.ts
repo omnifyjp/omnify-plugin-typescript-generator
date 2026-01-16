@@ -199,25 +199,31 @@ function generateBaseInterfaceFile(
   if (dateImports.dateTime) commonImports.push('DateTimeString');
   if (dateImports.date) commonImports.push('DateString');
   const ext = getImportExt(options);
+  // When base files are in node_modules, common.ts is alongside them (./common)
+  // Otherwise it's in parent folder (../common)
+  const isNodeModulesBase = options.baseImportPrefix?.startsWith('@');
+  const commonImportPath = isNodeModulesBase ? './common' : '../common';
   if (commonImports.length > 0) {
-    parts.push(`import type { ${commonImports.join(', ')} } from '../common${ext}';\n`);
+    parts.push(`import type { ${commonImports.join(', ')} } from '${commonImportPath}${ext}';\n`);
   }
 
   // Add imports for enum dependencies
   if (iface.enumDependencies && iface.enumDependencies.length > 0) {
-    // When enums are in separate folder, use ../../enum/ (from base/ folder)
-    const enumPrefix = options.enumImportPrefix ? `../${options.enumImportPrefix}` : '../enum';
+    // Schema enum prefix: use schemaEnumImportPrefix if provided (for node_modules base files)
+    // Otherwise use relative path from base/ folder
+    const schemaEnumPrefix = options.schemaEnumImportPrefix
+      ?? (options.enumImportPrefix ? `../${options.enumImportPrefix}` : '../enum');
     // Build set of plugin enum names for path resolution
     const pluginEnumNames = new Set(
       options.pluginEnums ? Array.from(options.pluginEnums.keys()) : []
     );
-    // Plugin enum import prefix (for node_modules/.omnify/enum)
-    const pluginEnumPrefix = options.pluginEnumImportPrefix ?? `${enumPrefix}/plugin`;
+    // Plugin enum import prefix (for node_modules/@omnify-client/enum)
+    const pluginEnumPrefix = options.pluginEnumImportPrefix ?? `${schemaEnumPrefix}/plugin`;
     for (const enumName of iface.enumDependencies) {
-      // Plugin enums use pluginEnumImportPrefix, schema enums use enumPrefix
+      // Plugin enums use pluginEnumImportPrefix, schema enums use schemaEnumPrefix
       const enumPath = pluginEnumNames.has(enumName)
         ? `${pluginEnumPrefix}/${enumName}${ext}`
-        : `${enumPrefix}/${enumName}${ext}`;
+        : `${schemaEnumPrefix}/${enumName}${ext}`;
       parts.push(`import { ${enumName} } from '${enumPath}';\n`);
     }
   }
@@ -253,13 +259,14 @@ function generateBaseInterfaceFile(
     content: parts.join(''),
     types: [schemaName, `${schemaName}Create`, `${schemaName}Update`],
     overwrite: true,
+    category: 'base' as const,
   };
 }
 
 /**
  * Generates a single enum file.
  * @param enumDef - The enum definition
- * @param isPluginEnum - If true, uses 'plugin-enum' category for node_modules/.omnify output
+ * @param isPluginEnum - If true, uses 'plugin-enum' category for node_modules/@omnify-client output
  */
 function generateEnumFile(enumDef: TSEnum, isPluginEnum = false): TypeScriptFile {
   const parts: string[] = [generateBaseHeader()];
@@ -296,11 +303,13 @@ function generateTypeAliasFile(alias: TSTypeAlias): TypeScriptFile {
  * Generates model file content that extends base.
  */
 function generateModelFile(schemaName: string, options: TypeScriptOptions): TypeScriptFile {
+  const basePrefix = options.baseImportPrefix ?? './base';
+
   // Use Zod format if enabled
   if (options.generateZodSchemas) {
     return {
       filePath: `${schemaName}.ts`,
-      content: formatZodModelFile(schemaName, getImportExt(options)),
+      content: formatZodModelFile(schemaName, getImportExt(options), basePrefix),
       types: [schemaName],
       overwrite: false, // Never overwrite user models
     };
@@ -311,7 +320,7 @@ function generateModelFile(schemaName: string, options: TypeScriptOptions): Type
   const ext = getImportExt(options);
 
   // Import base interface
-  parts.push(`import type { ${schemaName} as ${schemaName}Base } from './base/${schemaName}${ext}';\n\n`);
+  parts.push(`import type { ${schemaName} as ${schemaName}Base } from '${basePrefix}/${schemaName}${ext}';\n\n`);
 
   // Export interface that extends base
   parts.push(`/**\n * ${schemaName} model interface.\n * Add custom properties or methods here.\n */\n`);
@@ -463,11 +472,15 @@ export type DateTimeString = string;
 export type DateString = string;
 `;
 
+  // If base files go to node_modules, common.ts should go there too
+  const isNodeModulesBase = options.baseImportPrefix?.startsWith('@');
+
   return {
     filePath: 'common.ts',
     content,
     types: ['LocaleMap', 'Locale', 'ValidationRule', 'DateTimeString', 'DateString'],
     overwrite: true,
+    category: isNodeModulesBase ? 'base' as const : undefined,
   };
 }
 
@@ -508,8 +521,12 @@ function generateI18nFile(options: TypeScriptOptions): TypeScriptFile {
   const messagesJson = JSON.stringify(mergedMessages, null, 2);
   const ext = getImportExt(options);
 
+  // Determine common import path based on whether base files are in node_modules
+  const isNodeModulesBase = options.baseImportPrefix?.startsWith('@');
+  const commonImportPath = isNodeModulesBase ? `${options.baseImportPrefix}/common` : './common';
+
   const content = `${generateBaseHeader()}
-import type { LocaleMap } from './common${ext}';
+import type { LocaleMap } from '${commonImportPath}${ext}';
 
 /**
  * Default locale for this project.
@@ -605,9 +622,13 @@ function generateIndexFile(
   const parts: string[] = [generateBaseHeader()];
   const ext = getImportExt(options);
 
+  // Determine common import path based on whether base files are in node_modules
+  const isNodeModulesBase = options.baseImportPrefix?.startsWith('@');
+  const commonImportPath = isNodeModulesBase ? `${options.baseImportPrefix}/common` : './common';
+
   // Export common types
   parts.push(`// Common Types\n`);
-  parts.push(`export type { LocaleMap, Locale, ValidationRule, DateTimeString, DateString } from './common${ext}';\n\n`);
+  parts.push(`export type { LocaleMap, Locale, ValidationRule, DateTimeString, DateString } from '${commonImportPath}${ext}';\n\n`);
 
   // Export i18n utilities
   parts.push(`// i18n (Internationalization)\n`);
@@ -689,12 +710,13 @@ function generateIndexFile(
     }
   } else {
     // Legacy format
+    const basePrefix = options.baseImportPrefix ?? './base';
     parts.push(`// Models (with Create/Update utility types)\n`);
     for (const schema of Object.values(schemas)) {
       if (schema.kind === 'enum') continue;
       if (schema.options?.hidden === true) continue;
       parts.push(`export type { ${schema.name} } from './${schema.name}${ext}';\n`);
-      parts.push(`export type { ${schema.name}Create, ${schema.name}Update } from './base/${schema.name}${ext}';\n`);
+      parts.push(`export type { ${schema.name}Create, ${schema.name}Update } from '${basePrefix}/${schema.name}${ext}';\n`);
     }
 
     // Export rules functions if enabled (legacy)

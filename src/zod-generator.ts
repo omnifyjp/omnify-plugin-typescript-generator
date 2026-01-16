@@ -812,8 +812,9 @@ export function formatZodSchemasSection(
  * Format user model file with Zod re-exports.
  * @param schemaName - The schema name
  * @param ext - Import extension ('.js' for ESM, '' for bundlers)
+ * @param basePrefix - Import prefix for base files ('./base' or '@omnify-client/schemas')
  */
-export function formatZodModelFile(schemaName: string, ext: string = ''): string {
+export function formatZodModelFile(schemaName: string, ext: string = '', basePrefix: string = './base'): string {
   const lowerName = schemaName.charAt(0).toLowerCase() + schemaName.slice(1);
 
   return `/**
@@ -825,7 +826,7 @@ export function formatZodModelFile(schemaName: string, ext: string = ''): string
  */
 
 import { z } from 'zod';
-import type { ${schemaName} as ${schemaName}Base } from './base/${schemaName}${ext}';
+import type { ${schemaName} as ${schemaName}Base } from '${basePrefix}/${schemaName}${ext}';
 import {
   base${schemaName}Schemas,
   base${schemaName}CreateSchema,
@@ -834,7 +835,7 @@ import {
   get${schemaName}Label,
   get${schemaName}FieldLabel,
   get${schemaName}FieldPlaceholder,
-} from './base/${schemaName}${ext}';
+} from '${basePrefix}/${schemaName}${ext}';
 
 // ============================================================================
 // Types (extend or re-export)

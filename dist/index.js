@@ -24,7 +24,7 @@ import {
   toEnumName,
   toInterfaceName,
   toPropertyName
-} from "./chunk-XKUNDZDN.js";
+} from "./chunk-PA7B7ZFK.js";
 
 // src/stubs.ts
 import fs from "fs";
@@ -32,67 +32,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 var __filename = fileURLToPath(import.meta.url);
 var __dirname = path.dirname(__filename);
-var STUB_FILES = [
-  // Components
-  {
-    stub: "JapaneseNameField.tsx.stub",
-    output: "components/JapaneseNameField.tsx",
-    indexExport: ""
-    // Handled by components-index.ts.stub
-  },
-  {
-    stub: "JapaneseAddressField.tsx.stub",
-    output: "components/JapaneseAddressField.tsx",
-    indexExport: ""
-    // Handled by components-index.ts.stub
-  },
-  {
-    stub: "JapaneseBankField.tsx.stub",
-    output: "components/JapaneseBankField.tsx",
-    indexExport: ""
-    // Handled by components-index.ts.stub
-  },
-  {
-    stub: "components-index.ts.stub",
-    output: "components/index.ts",
-    indexExport: ""
-    // This IS the index
-  },
-  // Hooks
-  {
-    stub: "use-form-mutation.ts.stub",
-    output: "hooks/use-form-mutation.ts",
-    indexExport: `export { useFormMutation } from './use-form-mutation';
-`
-  },
-  // Lib
-  {
-    stub: "zod-i18n.ts.stub",
-    output: "lib/zod-i18n.ts",
-    indexExport: `export { setZodLocale, getZodLocale, getZodMessage } from './zod-i18n';
-`
-  },
-  {
-    stub: "form-validation.ts.stub",
-    output: "lib/form-validation.ts",
-    indexExport: `export { zodRule, requiredRule } from './form-validation';
-export * from './rules';
-`
-  },
-  // Rules
-  {
-    stub: "rules/kana.ts.stub",
-    output: "lib/rules/kana.ts",
-    indexExport: ""
-    // Will be handled by rules/index.ts
-  },
-  {
-    stub: "rules/index.ts.stub",
-    output: "lib/rules/index.ts",
-    indexExport: ""
-    // Already exported via form-validation
-  }
-];
+var STUB_FILES = [];
 function copyStubs(options) {
   const { targetDir, skipIfExists = false } = options;
   const stubsDir = path.join(__dirname, "..", "stubs");
