@@ -8,8 +8,11 @@ import type { LocaleConfig, CustomTypeDefinition, PluginEnumDefinition } from '@
 
 /**
  * File category for organizing output.
+ * - schema: Model schemas (user-editable)
+ * - enum: Schema enums (user-editable)
+ * - plugin-enum: Plugin enums (auto-generated, goes to node_modules/.omnify)
  */
-export type FileCategory = 'schema' | 'enum';
+export type FileCategory = 'schema' | 'enum' | 'plugin-enum';
 
 /**
  * Generated TypeScript file.
@@ -91,6 +94,13 @@ export interface TypeScriptOptions {
    * @default false
    */
   readonly useJsExtension?: boolean | undefined;
+  /**
+   * Import path prefix for plugin enums.
+   * Plugin enums are generated to node_modules/.omnify/enum/ and imported from this path.
+   * @example '@omnify/enum' - for node_modules/.omnify/enum with package alias
+   * @default '../enum/plugin' - legacy behavior (plugin enums in enum/plugin/)
+   */
+  readonly pluginEnumImportPrefix?: string | undefined;
 }
 
 /**

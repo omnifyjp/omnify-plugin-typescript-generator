@@ -211,10 +211,12 @@ function generateBaseInterfaceFile(
     const pluginEnumNames = new Set(
       options.pluginEnums ? Array.from(options.pluginEnums.keys()) : []
     );
+    // Plugin enum import prefix (for node_modules/.omnify/enum)
+    const pluginEnumPrefix = options.pluginEnumImportPrefix ?? `${enumPrefix}/plugin`;
     for (const enumName of iface.enumDependencies) {
-      // Plugin enums are in plugin/ subfolder to avoid conflicts
+      // Plugin enums use pluginEnumImportPrefix, schema enums use enumPrefix
       const enumPath = pluginEnumNames.has(enumName)
-        ? `${enumPrefix}/plugin/${enumName}${ext}`
+        ? `${pluginEnumPrefix}/${enumName}${ext}`
         : `${enumPrefix}/${enumName}${ext}`;
       parts.push(`import { ${enumName} } from '${enumPath}';\n`);
     }
@@ -257,24 +259,19 @@ function generateBaseInterfaceFile(
 /**
  * Generates a single enum file.
  * @param enumDef - The enum definition
- * @param isPluginEnum - If true, places in plugin/ subfolder to avoid conflicts
+ * @param isPluginEnum - If true, uses 'plugin-enum' category for node_modules/.omnify output
  */
 function generateEnumFile(enumDef: TSEnum, isPluginEnum = false): TypeScriptFile {
   const parts: string[] = [generateBaseHeader()];
   parts.push(formatEnum(enumDef));
   parts.push('\n');
 
-  // Plugin enums go to plugin/ subfolder to avoid conflicts with schema enums
-  const filePath = isPluginEnum
-    ? `plugin/${enumDef.name}.ts`
-    : `${enumDef.name}.ts`;
-
   return {
-    filePath,
+    filePath: `${enumDef.name}.ts`,
     content: parts.join(''),
     types: [enumDef.name],
     overwrite: true,
-    category: 'enum',
+    category: isPluginEnum ? 'plugin-enum' : 'enum',
   };
 }
 
@@ -640,8 +637,9 @@ function generateIndexFile(
     parts.push('\n');
   }
 
-  // Export plugin enums (from plugin/ subfolder)
+  // Export plugin enums (from node_modules/.omnify/enum or legacy plugin/ subfolder)
   if (pluginEnums.length > 0) {
+    const pluginEnumPrefix = options.pluginEnumImportPrefix ?? `${enumPrefix}/plugin`;
     parts.push(`// Plugin Enums\n`);
     for (const enumDef of pluginEnums) {
       parts.push(`export {\n`);
@@ -650,7 +648,7 @@ function generateIndexFile(
       parts.push(`  is${enumDef.name},\n`);
       parts.push(`  get${enumDef.name}Label,\n`);
       parts.push(`  get${enumDef.name}Extra,\n`);
-      parts.push(`} from '${enumPrefix}/plugin/${enumDef.name}${ext}';\n`);
+      parts.push(`} from '${pluginEnumPrefix}/${enumDef.name}${ext}';\n`);
     }
     parts.push('\n');
   }

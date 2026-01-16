@@ -1,11 +1,11 @@
 
-> @famgia/omnify-typescript@0.0.145 build /Users/f.satoshi/Herd/omnify-ts/packages/typescript-generator
+> @famgia/omnify-typescript@0.0.145 build /Users/f.satoshi/Herd/omnify-ts/packages/omnify-plugin-typescript-generator
 > tsup
 
 [34mCLI[39m Building entry: src/index.ts, src/plugin.ts
 [34mCLI[39m Using tsconfig: tsconfig.json
 [34mCLI[39m tsup v8.5.1
-[34mCLI[39m Using tsup config: /Users/f.satoshi/Herd/omnify-ts/packages/typescript-generator/tsup.config.ts
+[34mCLI[39m Using tsup config: /Users/f.satoshi/Herd/omnify-ts/packages/omnify-plugin-typescript-generator/tsup.config.ts
 [34mCLI[39m Target: es2022
 [34mCLI[39m Cleaning output folder
 [34mESM[39m Build start
@@ -28,20 +28,20 @@
   You need to set the output format to "esm" for "import.meta" to work correctly.
 
 
+[32mCJS[39m [1mdist/index.cjs      [22m[32m85.59 KB[39m
+[32mCJS[39m [1mdist/plugin.cjs     [22m[32m84.72 KB[39m
+[32mCJS[39m [1mdist/plugin.cjs.map [22m[32m162.32 KB[39m
+[32mCJS[39m [1mdist/index.cjs.map  [22m[32m160.92 KB[39m
+[32mCJS[39m ⚡️ Build success in 70ms
+[32mESM[39m [1mdist/index.js              [22m[32m5.93 KB[39m
 [32mESM[39m [1mdist/chunk-2Q2T4NRP.js     [22m[32m77.45 KB[39m
 [32mESM[39m [1mdist/plugin.js             [22m[32m6.34 KB[39m
-[32mESM[39m [1mdist/index.js              [22m[32m5.93 KB[39m
 [32mESM[39m [1mdist/chunk-2Q2T4NRP.js.map [22m[32m148.94 KB[39m
 [32mESM[39m [1mdist/plugin.js.map         [22m[32m13.59 KB[39m
 [32mESM[39m [1mdist/index.js.map          [22m[32m10.32 KB[39m
-[32mESM[39m ⚡️ Build success in 32ms
-[32mCJS[39m [1mdist/plugin.cjs     [22m[32m84.72 KB[39m
-[32mCJS[39m [1mdist/index.cjs      [22m[32m85.59 KB[39m
-[32mCJS[39m [1mdist/index.cjs.map  [22m[32m160.92 KB[39m
-[32mCJS[39m [1mdist/plugin.cjs.map [22m[32m162.32 KB[39m
-[32mCJS[39m ⚡️ Build success in 32ms
+[32mESM[39m ⚡️ Build success in 71ms
 [34mDTS[39m Build start
-[32mDTS[39m ⚡️ Build success in 978ms
+[32mDTS[39m ⚡️ Build success in 1274ms
 [32mDTS[39m [1mdist/index.d.ts   [22m[32m16.11 KB[39m
 [32mDTS[39m [1mdist/plugin.d.ts  [22m[32m3.08 KB[39m
 [32mDTS[39m [1mdist/index.d.cts  [22m[32m16.11 KB[39m
