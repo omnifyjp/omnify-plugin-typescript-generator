@@ -114,16 +114,15 @@ function applyValidationRules(
 
   // === Format Rules (override base type) ===
   if (rules.url) {
-    // z.url() is a top-level type in Zod v4
-    result = 'z.url()';
+    result = 'z.string().url()';
   } else if (rules.uuid) {
-    result = 'z.uuid()';
+    result = 'z.string().uuid()';
   } else if (rules.ip) {
-    result = 'z.ip()';
+    result = 'z.string().ip()';
   } else if (rules.ipv4) {
-    result = 'z.ipv4()';
+    result = 'z.string().ip({ version: "v4" })';
   } else if (rules.ipv6) {
-    result = 'z.ipv6()';
+    result = 'z.string().ip({ version: "v6" })';
   }
 
   // === Check if this is a string type ===
@@ -282,8 +281,7 @@ function getZodSchemaForType(
       break;
 
     case 'Email':
-      // Zod v4: Use z.email() top-level for better tree-shaking
-      schema = 'z.email()';
+      schema = 'z.string().email()';
       if (def.maxLength || def.length) {
         schema += `.max(${def.maxLength ?? def.length ?? 255})`;
       }
@@ -443,11 +441,10 @@ function generateCompoundTypeSchemas(
     let schema = 'z.string()';
 
     // Apply format-specific validation
-    // Zod v4: Use top-level validators for better tree-shaking
     if (format === 'email') {
-      schema = 'z.email()';
+      schema = 'z.string().email()';
     } else if (format === 'url') {
-      schema = 'z.url()';
+      schema = 'z.string().url()';
     } else if (format === 'phone') {
       // Japanese phone pattern: 0X0-XXXX-XXXX or 0X-XXXX-XXXX
       schema = 'z.string()';

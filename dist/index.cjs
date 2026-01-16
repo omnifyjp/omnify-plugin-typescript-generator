@@ -1100,15 +1100,15 @@ function applyValidationRules(schema, rules, propType) {
   if (!rules) return schema;
   let result = schema;
   if (rules.url) {
-    result = "z.url()";
+    result = "z.string().url()";
   } else if (rules.uuid) {
-    result = "z.uuid()";
+    result = "z.string().uuid()";
   } else if (rules.ip) {
-    result = "z.ip()";
+    result = "z.string().ip()";
   } else if (rules.ipv4) {
-    result = "z.ipv4()";
+    result = 'z.string().ip({ version: "v4" })';
   } else if (rules.ipv6) {
-    result = "z.ipv6()";
+    result = 'z.string().ip({ version: "v6" })';
   }
   const isStringType = ["String", "Text", "MediumText", "LongText", "Password", "Email"].includes(propType);
   if (isStringType) {
@@ -1225,7 +1225,7 @@ function getZodSchemaForType(propDef, fieldName, customTypes) {
       }
       break;
     case "Email":
-      schema = "z.email()";
+      schema = "z.string().email()";
       if (def.maxLength || def.length) {
         schema += `.max(${def.maxLength ?? def.length ?? 255})`;
       }
@@ -1330,9 +1330,9 @@ function generateCompoundTypeSchemas(propName, propDef, customType, options) {
     const format = overrideRules?.format ?? pluginRules?.format;
     let schema = "z.string()";
     if (format === "email") {
-      schema = "z.email()";
+      schema = "z.string().email()";
     } else if (format === "url") {
-      schema = "z.url()";
+      schema = "z.string().url()";
     } else if (format === "phone") {
       schema = "z.string()";
     } else if (format === "postal_code") {

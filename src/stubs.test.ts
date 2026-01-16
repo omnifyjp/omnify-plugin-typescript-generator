@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { copyStubs, getStubPaths, STUB_FILES } from './stubs';
+import { copyStubs, getStubPaths, STUB_FILES } from './stubs.js';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
