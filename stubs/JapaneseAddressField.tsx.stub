@@ -9,7 +9,7 @@ import type { FormInstance } from 'antd';
 import type { RuleObject } from 'antd/es/form';
 import { zodRule } from '../lib/form-validation';
 import { getZodLocale } from '../lib/zod-i18n';
-import { Prefecture, PrefectureValues, getPrefectureLabel, getPrefectureExtra } from '../enum/plugin/Prefecture';
+import { Prefecture, PrefectureValues, getPrefectureLabel, getPrefectureExtra } from '../schemas';
 
 interface I18nConfig {
     fields: Record<string, { label?: Record<string, string>; placeholder?: Record<string, string> }>;

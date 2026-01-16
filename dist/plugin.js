@@ -1,6 +1,6 @@
 import {
   generateTypeScript
-} from "./chunk-2Q2T4NRP.js";
+} from "./chunk-XKUNDZDN.js";
 
 // src/plugin.ts
 import fs from "fs";

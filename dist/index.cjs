@@ -1839,8 +1839,9 @@ function generateBaseInterfaceFile(schemaName, schemas, options) {
     const pluginEnumNames = new Set(
       options.pluginEnums ? Array.from(options.pluginEnums.keys()) : []
     );
+    const pluginEnumPrefix = options.pluginEnumImportPrefix ?? `${enumPrefix}/plugin`;
     for (const enumName of iface.enumDependencies) {
-      const enumPath = pluginEnumNames.has(enumName) ? `${enumPrefix}/plugin/${enumName}${ext}` : `${enumPrefix}/${enumName}${ext}`;
+      const enumPath = pluginEnumNames.has(enumName) ? `${pluginEnumPrefix}/${enumName}${ext}` : `${enumPrefix}/${enumName}${ext}`;
       parts.push(`import { ${enumName} } from '${enumPath}';
 `);
     }
@@ -1876,13 +1877,12 @@ function generateEnumFile(enumDef, isPluginEnum = false) {
   const parts = [generateBaseHeader()];
   parts.push(formatEnum(enumDef));
   parts.push("\n");
-  const filePath = isPluginEnum ? `plugin/${enumDef.name}.ts` : `${enumDef.name}.ts`;
   return {
-    filePath,
+    filePath: `${enumDef.name}.ts`,
     content: parts.join(""),
     types: [enumDef.name],
     overwrite: true,
-    category: "enum"
+    category: isPluginEnum ? "plugin-enum" : "enum"
   };
 }
 function generateTypeAliasFile(alias) {
@@ -2223,6 +2223,7 @@ function generateIndexFile(schemas, enums, pluginEnums, typeAliases, options) {
     parts.push("\n");
   }
   if (pluginEnums.length > 0) {
+    const pluginEnumPrefix = options.pluginEnumImportPrefix ?? `${enumPrefix}/plugin`;
     parts.push(`// Plugin Enums
 `);
     for (const enumDef of pluginEnums) {
@@ -2238,7 +2239,7 @@ function generateIndexFile(schemas, enums, pluginEnums, typeAliases, options) {
 `);
       parts.push(`  get${enumDef.name}Extra,
 `);
-      parts.push(`} from '${enumPrefix}/plugin/${enumDef.name}${ext}';
+      parts.push(`} from '${pluginEnumPrefix}/${enumDef.name}${ext}';
 `);
     }
     parts.push("\n");
