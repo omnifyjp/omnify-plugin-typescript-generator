@@ -726,3 +726,154 @@ describe('TypeScript Generator - LocalizedString対応', () => {
     });
   });
 });
+
+// ============================================================================
+// Plugin Enum Tests (@omnify-client/enum)
+// ============================================================================
+
+describe('TypeScript Generator - Plugin Enums', () => {
+  const schemas: SchemaCollection = {
+    User: {
+      name: 'User',
+      kind: 'object',
+      filePath: '/test/user.yaml',
+      relativePath: '/test/user.yaml',
+      properties: {
+        email: { type: 'Email' },
+        prefecture: { type: 'EnumRef', enum: 'Prefecture' } as any,
+      },
+      options: { timestamps: true },
+    },
+  };
+
+  // Mock plugin enums (like Prefecture from @famgia/omnify-japan)
+  const pluginEnums = new Map([
+    ['Prefecture', {
+      name: 'Prefecture',
+      values: [
+        { value: 'hokkaido', label: { ja: '北海道', en: 'Hokkaido' } },
+        { value: 'aomori', label: { ja: '青森県', en: 'Aomori' } },
+      ],
+    }],
+    ['BankAccountType', {
+      name: 'BankAccountType',
+      values: [
+        { value: 'ordinary', label: { ja: '普通', en: 'Ordinary' } },
+        { value: 'current', label: { ja: '当座', en: 'Current' } },
+      ],
+    }],
+  ]);
+
+  describe('generateTypeScript with pluginEnums', () => {
+    it('generates plugin enum files with category "plugin-enum"', () => {
+      const result = generateTypeScript(schemas, {
+        pluginEnums,
+        pluginEnumImportPrefix: '@omnify-client/enum',
+      });
+
+      // Find plugin enum files
+      const prefectureFile = result.find(f => f.filePath === 'Prefecture.ts' && f.category === 'plugin-enum');
+      const bankFile = result.find(f => f.filePath === 'BankAccountType.ts' && f.category === 'plugin-enum');
+
+      expect(prefectureFile).toBeDefined();
+      expect(prefectureFile?.category).toBe('plugin-enum');
+      expect(prefectureFile?.overwrite).toBe(true);
+
+      expect(bankFile).toBeDefined();
+      expect(bankFile?.category).toBe('plugin-enum');
+    });
+
+    it('plugin enum files contain enum definition and helpers', () => {
+      const result = generateTypeScript(schemas, {
+        pluginEnums,
+        pluginEnumImportPrefix: '@omnify-client/enum',
+      });
+
+      const prefectureFile = result.find(f => f.filePath === 'Prefecture.ts' && f.category === 'plugin-enum');
+
+      expect(prefectureFile?.content).toContain('export enum Prefecture');
+      expect(prefectureFile?.content).toContain('export const PrefectureValues');
+      expect(prefectureFile?.content).toContain('export function isPrefecture');
+      expect(prefectureFile?.content).toContain('export function getPrefectureLabel');
+      expect(prefectureFile?.content).toContain('export function getPrefectureExtra');
+    });
+
+    it('index file imports plugin enums from @omnify-client/enum', () => {
+      const result = generateTypeScript(schemas, {
+        pluginEnums,
+        pluginEnumImportPrefix: '@omnify-client/enum',
+      });
+
+      const indexFile = result.find(f => f.filePath === 'index.ts');
+
+      expect(indexFile?.content).toContain("from '@omnify-client/enum/Prefecture'");
+      expect(indexFile?.content).toContain("from '@omnify-client/enum/BankAccountType'");
+      expect(indexFile?.content).toContain('Prefecture,');
+      expect(indexFile?.content).toContain('PrefectureValues,');
+      expect(indexFile?.content).toContain('isPrefecture,');
+      expect(indexFile?.content).toContain('getPrefectureLabel,');
+    });
+
+    it('base files import plugin enums from @omnify-client/enum', () => {
+      const result = generateTypeScript(schemas, {
+        pluginEnums,
+        pluginEnumImportPrefix: '@omnify-client/enum',
+        enumImportPrefix: '../enum',
+      });
+
+      const userBaseFile = result.find(f => f.filePath === 'base/User.ts');
+
+      // Should import Prefecture from plugin enum path, not regular enum path
+      expect(userBaseFile?.content).toContain("from '@omnify-client/enum/Prefecture'");
+      expect(userBaseFile?.content).not.toContain("from '../enum/plugin/Prefecture'");
+    });
+
+    it('uses legacy plugin/ path when pluginEnumImportPrefix is not set', () => {
+      const result = generateTypeScript(schemas, {
+        pluginEnums,
+        enumImportPrefix: '../enum',
+        // pluginEnumImportPrefix NOT set - should use legacy path
+      });
+
+      const indexFile = result.find(f => f.filePath === 'index.ts');
+
+      // Should use legacy plugin/ subfolder path
+      expect(indexFile?.content).toContain("from '../enum/plugin/Prefecture'");
+      expect(indexFile?.content).toContain("from '../enum/plugin/BankAccountType'");
+    });
+
+    it('distinguishes schema enums from plugin enums', () => {
+      const schemasWithEnum: SchemaCollection = {
+        ...schemas,
+        Status: {
+          name: 'Status',
+          kind: 'enum',
+          filePath: '/test/status.yaml',
+          relativePath: '/test/status.yaml',
+          values: ['active', 'inactive'],
+        },
+      };
+
+      const result = generateTypeScript(schemasWithEnum, {
+        pluginEnums,
+        pluginEnumImportPrefix: '@omnify-client/enum',
+        enumImportPrefix: '../enum',
+      });
+
+      // Schema enum should have category 'enum'
+      const statusFile = result.find(f => f.filePath === 'Status.ts' && f.category === 'enum');
+      expect(statusFile).toBeDefined();
+      expect(statusFile?.category).toBe('enum');
+
+      // Plugin enums should have category 'plugin-enum'
+      const prefectureFile = result.find(f => f.filePath === 'Prefecture.ts' && f.category === 'plugin-enum');
+      expect(prefectureFile).toBeDefined();
+      expect(prefectureFile?.category).toBe('plugin-enum');
+
+      // Index should import them from different paths
+      const indexFile = result.find(f => f.filePath === 'index.ts');
+      expect(indexFile?.content).toContain("from '../enum/Status'"); // Schema enum
+      expect(indexFile?.content).toContain("from '@omnify-client/enum/Prefecture'"); // Plugin enum
+    });
+  });
+});
