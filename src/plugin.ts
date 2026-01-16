@@ -229,25 +229,58 @@ export default function typescriptPlugin(options?: TypeScriptPluginOptions): Omn
         description: 'Generate TypeScript model definitions',
 
         generate: async (ctx: GeneratorContext): Promise<GeneratorOutput[]> => {
+          // Determine plugin enum path - relative to the schemas folder's node_modules
+          // e.g., if modelsPath is "./frontend/src/omnify/schemas", 
+          // plugin enums go to "./frontend/node_modules/@omnify-client/enum"
+          const modelsDir = path.dirname(resolved.modelsPath);
+          const frontendRoot = modelsDir.replace(/\/src\/.*$/, '');
+          const pluginEnumBase = `${frontendRoot}/node_modules/@omnify-client`;
+          const pluginEnumPath = `${pluginEnumBase}/enum`;
+          const hasPluginEnums = ctx.pluginEnums && ctx.pluginEnums.size > 0;
+
           const files = generateTypeScript(ctx.schemas, {
             generateZodSchemas: resolved.generateZodSchemas,
             localeConfig: ctx.localeConfig,
             customTypes: ctx.customTypes,
             pluginEnums: ctx.pluginEnums,
+            pluginEnumImportPrefix: '@omnify-client/enum',
           });
 
-          return files.map((file) => {
+          const outputs: GeneratorOutput[] = [];
+
+          // Add package.json for @omnify-client if plugin enums exist
+          if (hasPluginEnums) {
+            outputs.push({
+              path: `${pluginEnumBase}/package.json`,
+              content: JSON.stringify({
+                name: '@omnify-client',
+                version: '0.0.0',
+                private: true,
+                main: './enum/index.js',
+                exports: {
+                  './enum/*': './enum/*.js',
+                },
+              }, null, 2),
+              type: 'other' as const,
+              skipIfExists: false,
+            });
+          }
+
+          for (const file of files) {
             // Determine output path based on category
             let outputPath: string;
-            if (file.category === 'enum') {
-              // Enum files go to ../enum/ folder (sibling to schemas)
+            if (file.category === 'plugin-enum') {
+              // Plugin enums go to frontend/node_modules/@omnify-client/enum/
+              outputPath = `${pluginEnumPath}/${file.filePath}`;
+            } else if (file.category === 'enum') {
+              // Schema enums go to ../enum/ folder (sibling to schemas)
               const enumPath = resolved.modelsPath.replace(/\/schemas\/?$/, '/enum');
               outputPath = `${enumPath}/${file.filePath}`;
             } else {
               outputPath = `${resolved.modelsPath}/${file.filePath}`;
             }
 
-            return {
+            outputs.push({
               path: outputPath,
               content: file.content,
               type: 'type' as const,
@@ -255,8 +288,10 @@ export default function typescriptPlugin(options?: TypeScriptPluginOptions): Omn
               metadata: {
                 types: file.types,
               },
-            };
-          });
+            });
+          }
+
+          return outputs;
         },
       },
       {

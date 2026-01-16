@@ -2477,21 +2477,46 @@ function typescriptPlugin(options) {
         name: "typescript-models",
         description: "Generate TypeScript model definitions",
         generate: async (ctx) => {
+          const modelsDir = import_path.default.dirname(resolved.modelsPath);
+          const frontendRoot = modelsDir.replace(/\/src\/.*$/, "");
+          const pluginEnumBase = `${frontendRoot}/node_modules/@omnify-client`;
+          const pluginEnumPath = `${pluginEnumBase}/enum`;
+          const hasPluginEnums = ctx.pluginEnums && ctx.pluginEnums.size > 0;
           const files = generateTypeScript(ctx.schemas, {
             generateZodSchemas: resolved.generateZodSchemas,
             localeConfig: ctx.localeConfig,
             customTypes: ctx.customTypes,
-            pluginEnums: ctx.pluginEnums
+            pluginEnums: ctx.pluginEnums,
+            pluginEnumImportPrefix: "@omnify-client/enum"
           });
-          return files.map((file) => {
+          const outputs = [];
+          if (hasPluginEnums) {
+            outputs.push({
+              path: `${pluginEnumBase}/package.json`,
+              content: JSON.stringify({
+                name: "@omnify-client",
+                version: "0.0.0",
+                private: true,
+                main: "./enum/index.js",
+                exports: {
+                  "./enum/*": "./enum/*.js"
+                }
+              }, null, 2),
+              type: "other",
+              skipIfExists: false
+            });
+          }
+          for (const file of files) {
             let outputPath;
-            if (file.category === "enum") {
+            if (file.category === "plugin-enum") {
+              outputPath = `${pluginEnumPath}/${file.filePath}`;
+            } else if (file.category === "enum") {
               const enumPath = resolved.modelsPath.replace(/\/schemas\/?$/, "/enum");
               outputPath = `${enumPath}/${file.filePath}`;
             } else {
               outputPath = `${resolved.modelsPath}/${file.filePath}`;
             }
-            return {
+            outputs.push({
               path: outputPath,
               content: file.content,
               type: "type",
@@ -2500,8 +2525,9 @@ function typescriptPlugin(options) {
               metadata: {
                 types: file.types
               }
-            };
-          });
+            });
+          }
+          return outputs;
         }
       },
       {
