@@ -1,30 +1,30 @@
 
-> @famgia/omnify-typescript@0.0.148 build /Users/f.satoshi/Herd/omnify-ts/packages/omnify-plugin-typescript-generator
+> @famgia/omnify-typescript@0.0.149 build /Users/f.satoshi/Herd/omnify-ts/packages/omnify-plugin-typescript-generator
 > tsup
 
-CLI Building entry: src/index.ts, src/plugin.ts
-CLI Using tsconfig: tsconfig.json
-CLI tsup v8.5.1
-CLI Using tsup config: /Users/f.satoshi/Herd/omnify-ts/packages/omnify-plugin-typescript-generator/tsup.config.ts
-CLI Target: es2022
-CLI Cleaning output folder
-ESM Build start
-CJS Build start
-ESM dist/index.js              3.00 KB
-ESM dist/plugin.js             4.14 KB
-ESM dist/chunk-VLDDJNHY.js     78.88 KB
-ESM dist/index.js.map          5.24 KB
-ESM dist/plugin.js.map         9.47 KB
-ESM dist/chunk-VLDDJNHY.js.map 152.30 KB
-ESM ⚡️ Build success in 48ms
-CJS dist/plugin.cjs     83.24 KB
-CJS dist/index.cjs      83.14 KB
-CJS dist/plugin.cjs.map 161.51 KB
-CJS dist/index.cjs.map  159.05 KB
-CJS ⚡️ Build success in 55ms
-DTS Build start
-DTS ⚡️ Build success in 2684ms
-DTS dist/index.d.ts   15.92 KB
-DTS dist/plugin.d.ts  2.03 KB
-DTS dist/index.d.cts  15.92 KB
-DTS dist/plugin.d.cts 2.03 KB
+[34mCLI[39m Building entry: src/index.ts, src/plugin.ts
+[34mCLI[39m Using tsconfig: tsconfig.json
+[34mCLI[39m tsup v8.5.1
+[34mCLI[39m Using tsup config: /Users/f.satoshi/Herd/omnify-ts/packages/omnify-plugin-typescript-generator/tsup.config.ts
+[34mCLI[39m Target: es2022
+[34mCLI[39m Cleaning output folder
+[34mESM[39m Build start
+[34mCJS[39m Build start
+[32mCJS[39m [1mdist/plugin.cjs     [22m[32m83.24 KB[39m
+[32mCJS[39m [1mdist/index.cjs      [22m[32m83.14 KB[39m
+[32mCJS[39m [1mdist/plugin.cjs.map [22m[32m161.51 KB[39m
+[32mCJS[39m [1mdist/index.cjs.map  [22m[32m159.05 KB[39m
+[32mCJS[39m ⚡️ Build success in 67ms
+[32mESM[39m [1mdist/plugin.js             [22m[32m4.14 KB[39m
+[32mESM[39m [1mdist/index.js              [22m[32m3.00 KB[39m
+[32mESM[39m [1mdist/chunk-VLDDJNHY.js     [22m[32m78.88 KB[39m
+[32mESM[39m [1mdist/plugin.js.map         [22m[32m9.47 KB[39m
+[32mESM[39m [1mdist/index.js.map          [22m[32m5.24 KB[39m
+[32mESM[39m [1mdist/chunk-VLDDJNHY.js.map [22m[32m152.30 KB[39m
+[32mESM[39m ⚡️ Build success in 69ms
+[34mDTS[39m Build start
+[32mDTS[39m ⚡️ Build success in 2044ms
+[32mDTS[39m [1mdist/index.d.ts   [22m[32m15.92 KB[39m
+[32mDTS[39m [1mdist/plugin.d.ts  [22m[32m2.03 KB[39m
+[32mDTS[39m [1mdist/index.d.cts  [22m[32m15.92 KB[39m
+[32mDTS[39m [1mdist/plugin.d.cts [22m[32m2.03 KB[39m
