@@ -35,6 +35,25 @@ interface InlineEnumValue {
 }
 
 /**
+ * Converts a string to PascalCase (handles camelCase, snake_case, kebab-case).
+ * Used for generating TypeScript type names from property names.
+ * 
+ * Examples:
+ *   - "plan_type" → "PlanType"
+ *   - "planType" → "PlanType"
+ *   - "status" → "Status"
+ */
+export function toPascalCase(value: string): string {
+  // Handle camelCase by inserting split points before uppercase letters
+  const normalized = value.replace(/([a-z])([A-Z])/g, '$1_$2');
+
+  return normalized
+    .split(/[-_\s]+/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join('');
+}
+
+/**
  * Converts enum value to valid TypeScript enum member name.
  */
 export function toEnumMemberName(value: string): string {
@@ -400,7 +419,8 @@ export function extractInlineEnums(schemas: SchemaCollection, options: TypeScrip
 
         // Only handle inline array enums (not references to named enums)
         if (Array.isArray(enumProp.enum) && enumProp.enum.length > 0) {
-          const typeName = `${schema.name}${propName.charAt(0).toUpperCase() + propName.slice(1)}`;
+          // Convert property name to PascalCase for type name (handles snake_case like "plan_type" → "PlanType")
+          const typeName = `${schema.name}${toPascalCase(propName)}`;
           const displayName = resolveDisplayName(enumProp.displayName, options);
 
           // Check if any value has labels (i18n support needed)
@@ -436,7 +456,8 @@ export function extractInlineEnums(schemas: SchemaCollection, options: TypeScrip
         const selectProp = property as { options?: readonly (string | InlineEnumValue)[]; displayName?: LocalizedString };
 
         if (selectProp.options && selectProp.options.length > 0) {
-          const typeName = `${schema.name}${propName.charAt(0).toUpperCase() + propName.slice(1)}`;
+          // Convert property name to PascalCase for type name (handles snake_case)
+          const typeName = `${schema.name}${toPascalCase(propName)}`;
           const displayName = resolveDisplayName(selectProp.displayName, options);
 
           // Check if any option has labels

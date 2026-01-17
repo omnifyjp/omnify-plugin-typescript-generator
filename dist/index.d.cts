@@ -382,65 +382,6 @@ declare function generateModelRules(schema: LoadedSchema, locales: string[], fal
 declare function generateRulesFiles(schemas: SchemaCollection, options?: TypeScriptOptions): TypeScriptFile[];
 
 /**
- * Stub file utilities for React/Ant Design/TanStack Query utilities.
- *
- * NOTE: Stub files are NO LONGER generated into projects.
- * All runtime utilities should be imported from @famgia/omnify-client-react:
- *
- * ```typescript
- * import {
- *   // Components
- *   JapaneseNameField,
- *   JapaneseAddressField,
- *   JapaneseBankField,
- *
- *   // Hooks
- *   useFormMutation,
- *
- *   // Utilities
- *   zodRule,
- *   setZodLocale,
- *   kanaString,
- * } from '@famgia/omnify-client-react';
- * ```
- *
- * Only schema files (editable) and schema enums are generated into the project.
- */
-interface StubFile {
-    stub: string;
-    output: string;
-    indexExport: string;
-}
-/**
- * Stub file definitions - empty since all utilities come from @famgia/omnify-client-react
- */
-declare const STUB_FILES: readonly StubFile[];
-interface CopyStubsOptions {
-    /** Target directory (e.g., 'resources/ts/omnify') */
-    targetDir: string;
-    /** Skip if file exists (default: false - always overwrite library files) */
-    skipIfExists?: boolean;
-}
-interface CopyStubsResult {
-    copied: string[];
-    skipped: string[];
-}
-/**
- * Copy React utility stubs to the target directory.
- *
- * @example
- * copyStubs({
- *   targetDir: 'resources/ts/omnify',
- *   skipIfExists: true,
- * });
- */
-declare function copyStubs(options: CopyStubsOptions): CopyStubsResult;
-/**
- * Get list of stub files that would be generated.
- */
-declare function getStubPaths(): string[];
-
-/**
  * AI Guides Generator for TypeScript/Frontend
  *
  * TypeScript/Reactプロジェクト用のAIガイド生成
@@ -479,4 +420,26 @@ declare function generateAIGuides(rootDir: string, options?: AIGuidesOptions): A
  */
 declare function shouldGenerateAIGuides(rootDir: string): boolean;
 
-export { type AIGuidesOptions, type AIGuidesResult, type CopyStubsOptions, type CopyStubsResult, DEFAULT_VALIDATION_TEMPLATES, type ExtractedInlineEnum, type LocaleMap, STUB_FILES, type TSEnum, type TSEnumValue, type TSInterface, type TSProperty, type TSTypeAlias, type TypeScriptFile, type TypeScriptOptions, type ValidationTemplates, copyStubs, enumToUnionType, extractInlineEnums, formatEnum, formatInterface, formatProperty, formatTypeAlias, formatValidationMessage, generateAIGuides, generateEnums, generateInterfaces, generateModelRules, generatePluginEnums, generateRulesFiles, generateTypeScript, generateTypeScript as generateTypeScriptFiles, getPropertyType, getStubPaths, getValidationMessages, mergeValidationTemplates, pluginEnumToTSEnum, propertyToTSProperty, schemaToEnum, schemaToInterface, shouldGenerateAIGuides, toEnumMemberName, toEnumName, toInterfaceName, toPropertyName };
+/**
+ * Stubs management for TypeScript generator
+ *
+ * Currently a placeholder - React utility stubs feature is not yet implemented.
+ */
+interface CopyStubsOptions {
+    targetDir: string;
+    skipIfExists?: boolean;
+}
+interface CopyStubsResult {
+    copied: string[];
+    skipped: string[];
+}
+/**
+ * Copy React utility stubs to target directory.
+ *
+ * Currently returns empty result as React utility stubs feature
+ * is not yet implemented. The AI guides are handled separately
+ * via generateAIGuides().
+ */
+declare function copyStubs(_options: CopyStubsOptions): CopyStubsResult;
+
+export { type AIGuidesOptions, type AIGuidesResult, type CopyStubsOptions, type CopyStubsResult, DEFAULT_VALIDATION_TEMPLATES, type ExtractedInlineEnum, type LocaleMap, type TSEnum, type TSEnumValue, type TSInterface, type TSProperty, type TSTypeAlias, type TypeScriptFile, type TypeScriptOptions, type ValidationTemplates, copyStubs, enumToUnionType, extractInlineEnums, formatEnum, formatInterface, formatProperty, formatTypeAlias, formatValidationMessage, generateAIGuides, generateEnums, generateInterfaces, generateModelRules, generatePluginEnums, generateRulesFiles, generateTypeScript, generateTypeScript as generateTypeScriptFiles, getPropertyType, getValidationMessages, mergeValidationTemplates, pluginEnumToTSEnum, propertyToTSProperty, schemaToEnum, schemaToInterface, shouldGenerateAIGuides, toEnumMemberName, toEnumName, toInterfaceName, toPropertyName };

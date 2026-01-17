@@ -10,43 +10,21 @@ CLI Target: es2022
 CLI Cleaning output folder
 ESM Build start
 CJS Build start
-
- WARN  [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1m"import.meta" is not available with the "cjs" output format and will be empty[0m [empty-import-meta]
-
-    src/plugin.ts:55:33:
-[37m      55 │ const __filename = fileURLToPath([32mimport.meta[37m.url);
-         ╵                                  [32m~~~~~~~~~~~[0m
-
-  You need to set the output format to "esm" for "import.meta" to work correctly.
-
-
-
-
- WARN  [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1m"import.meta" is not available with the "cjs" output format and will be empty[0m [empty-import-meta]
-
-    src/stubs.ts:31:33:
-[37m      31 │ const __filename = fileURLToPath([32mimport.meta[37m.url);
-         ╵                                  [32m~~~~~~~~~~~[0m
-
-  You need to set the output format to "esm" for "import.meta" to work correctly.
-
-
-
-CJS dist/plugin.cjs     86.91 KB
-CJS dist/index.cjs      85.28 KB
-CJS dist/plugin.cjs.map 166.51 KB
-CJS dist/index.cjs.map  161.62 KB
-CJS ⚡️ Build success in 43ms
-ESM dist/plugin.js             7.41 KB
-ESM dist/index.js              4.51 KB
-ESM dist/chunk-ABQSV5TY.js     78.56 KB
-ESM dist/plugin.js.map         15.67 KB
-ESM dist/index.js.map          8.91 KB
-ESM dist/chunk-ABQSV5TY.js.map 151.05 KB
-ESM ⚡️ Build success in 43ms
+ESM dist/index.js              3.00 KB
+ESM dist/plugin.js             3.58 KB
+ESM dist/chunk-UD6Y6KHP.js     78.71 KB
+ESM dist/plugin.js.map         8.35 KB
+ESM dist/index.js.map          5.24 KB
+ESM dist/chunk-UD6Y6KHP.js.map 151.91 KB
+ESM ⚡️ Build success in 75ms
+CJS dist/plugin.cjs     83.14 KB
+CJS dist/index.cjs      82.97 KB
+CJS dist/plugin.cjs.map 160.02 KB
+CJS dist/index.cjs.map  158.66 KB
+CJS ⚡️ Build success in 76ms
 DTS Build start
-DTS ⚡️ Build success in 1053ms
-DTS dist/index.d.ts   16.81 KB
-DTS dist/plugin.d.ts  3.08 KB
-DTS dist/index.d.cts  16.81 KB
-DTS dist/plugin.d.cts 3.08 KB
+DTS ⚡️ Build success in 2748ms
+DTS dist/index.d.ts   15.93 KB
+DTS dist/plugin.d.ts  2.03 KB
+DTS dist/index.d.cts  15.93 KB
+DTS dist/plugin.d.cts 2.03 KB

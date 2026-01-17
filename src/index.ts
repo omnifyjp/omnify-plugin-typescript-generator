@@ -57,14 +57,6 @@ export {
   generateRulesFiles,
 } from './rules-generator.js';
 
-export {
-  copyStubs,
-  getStubPaths,
-  STUB_FILES,
-  type CopyStubsOptions,
-  type CopyStubsResult,
-} from './stubs.js';
-
 export type { LocaleMap } from './types.js';
 
 // AI Guides generation
@@ -74,3 +66,10 @@ export {
   type AIGuidesOptions,
   type AIGuidesResult,
 } from './ai-guides/index.js';
+
+// Stubs management
+export {
+  copyStubs,
+  type CopyStubsOptions,
+  type CopyStubsResult,
+} from './stubs.js';

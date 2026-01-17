@@ -1,9 +1,7 @@
 "use strict";
-var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __export = (target, all) => {
   for (var name in all)
@@ -17,21 +15,12 @@ var __copyProps = (to, from, except, desc) => {
   }
   return to;
 };
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
   DEFAULT_VALIDATION_TEMPLATES: () => DEFAULT_VALIDATION_TEMPLATES,
-  STUB_FILES: () => STUB_FILES,
   copyStubs: () => copyStubs,
   enumToUnionType: () => enumToUnionType,
   extractInlineEnums: () => extractInlineEnums,
@@ -49,7 +38,6 @@ __export(index_exports, {
   generateTypeScript: () => generateTypeScript,
   generateTypeScriptFiles: () => generateTypeScript,
   getPropertyType: () => getPropertyType,
-  getStubPaths: () => getStubPaths,
   getValidationMessages: () => getValidationMessages,
   mergeValidationTemplates: () => mergeValidationTemplates,
   pluginEnumToTSEnum: () => pluginEnumToTSEnum,
@@ -387,6 +375,10 @@ function resolveDisplayName2(value, options = {}) {
     config: options.localeConfig
   });
 }
+function toPascalCase(value) {
+  const normalized = value.replace(/([a-z])([A-Z])/g, "$1_$2");
+  return normalized.split(/[-_\s]+/).map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join("");
+}
 function toEnumMemberName(value) {
   let result = value.split(/[-_\s]+/).map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join("").replace(/[^a-zA-Z0-9]/g, "");
   if (/^\d/.test(result)) {
@@ -674,7 +666,7 @@ function extractInlineEnums(schemas, options = {}) {
       if (property.type === "Enum") {
         const enumProp = property;
         if (Array.isArray(enumProp.enum) && enumProp.enum.length > 0) {
-          const typeName = `${schema.name}${propName.charAt(0).toUpperCase() + propName.slice(1)}`;
+          const typeName = `${schema.name}${toPascalCase(propName)}`;
           const displayName = resolveDisplayName2(enumProp.displayName, options);
           const hasLabels = enumProp.enum.some((v) => typeof v !== "string" && v.label !== void 0);
           if (hasLabels) {
@@ -703,7 +695,7 @@ function extractInlineEnums(schemas, options = {}) {
       if (property.type === "Select") {
         const selectProp = property;
         if (selectProp.options && selectProp.options.length > 0) {
-          const typeName = `${schema.name}${propName.charAt(0).toUpperCase() + propName.slice(1)}`;
+          const typeName = `${schema.name}${toPascalCase(propName)}`;
           const displayName = resolveDisplayName2(selectProp.displayName, options);
           const hasLabels = selectProp.options.some((v) => typeof v !== "string" && v.label !== void 0);
           if (hasLabels) {
@@ -2419,55 +2411,6 @@ Hint: Rename your schema enum to avoid conflict with plugin-provided enums`
   return files;
 }
 
-// src/stubs.ts
-var import_fs = __toESM(require("fs"), 1);
-var import_path = __toESM(require("path"), 1);
-var import_url = require("url");
-var import_meta = {};
-var __filename = (0, import_url.fileURLToPath)(import_meta.url);
-var __dirname = import_path.default.dirname(__filename);
-var STUB_FILES = [];
-function copyStubs(options) {
-  const { targetDir, skipIfExists = false } = options;
-  const stubsDir = import_path.default.join(__dirname, "..", "stubs");
-  const result = { copied: [], skipped: [] };
-  const directories = /* @__PURE__ */ new Map();
-  for (const { stub, output, indexExport } of STUB_FILES) {
-    const stubPath = import_path.default.join(stubsDir, stub);
-    const outputPath = import_path.default.join(targetDir, output);
-    const outputDir = import_path.default.dirname(outputPath);
-    const dirName = import_path.default.dirname(output).split("/")[0];
-    if (!directories.has(dirName)) {
-      directories.set(dirName, "");
-    }
-    directories.set(dirName, directories.get(dirName) + indexExport);
-    if (!import_fs.default.existsSync(outputDir)) {
-      import_fs.default.mkdirSync(outputDir, { recursive: true });
-    }
-    if (skipIfExists && import_fs.default.existsSync(outputPath)) {
-      result.skipped.push(output);
-      continue;
-    }
-    if (import_fs.default.existsSync(stubPath)) {
-      const content = import_fs.default.readFileSync(stubPath, "utf-8");
-      import_fs.default.writeFileSync(outputPath, content);
-      result.copied.push(output);
-    }
-  }
-  for (const [dirName, exports2] of directories) {
-    const indexPath = import_path.default.join(targetDir, dirName, "index.ts");
-    if (skipIfExists && import_fs.default.existsSync(indexPath)) {
-      continue;
-    }
-    import_fs.default.writeFileSync(indexPath, exports2);
-    result.copied.push(`${dirName}/index.ts`);
-  }
-  return result;
-}
-function getStubPaths() {
-  return STUB_FILES.map((s) => s.output);
-}
-
 // src/ai-guides/generator.ts
 var import_node_fs = require("fs");
 var import_node_path = require("path");
@@ -2519,10 +2462,17 @@ function shouldGenerateAIGuides(rootDir) {
     return true;
   }
 }
+
+// src/stubs.ts
+function copyStubs(_options) {
+  return {
+    copied: [],
+    skipped: []
+  };
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   DEFAULT_VALIDATION_TEMPLATES,
-  STUB_FILES,
   copyStubs,
   enumToUnionType,
   extractInlineEnums,
@@ -2540,7 +2490,6 @@ function shouldGenerateAIGuides(rootDir) {
   generateTypeScript,
   generateTypeScriptFiles,
   getPropertyType,
-  getStubPaths,
   getValidationMessages,
   mergeValidationTemplates,
   pluginEnumToTSEnum,

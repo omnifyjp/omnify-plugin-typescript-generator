@@ -30,6 +30,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/plugin.ts
 var plugin_exports = {};
 __export(plugin_exports, {
+  DEFAULTS: () => DEFAULTS,
   LEGACY_DEFAULTS: () => LEGACY_DEFAULTS,
   MODERN_DEFAULTS: () => MODERN_DEFAULTS,
   default: () => typescriptPlugin,
@@ -358,6 +359,10 @@ function resolveDisplayName2(value, options = {}) {
     config: options.localeConfig
   });
 }
+function toPascalCase(value) {
+  const normalized = value.replace(/([a-z])([A-Z])/g, "$1_$2");
+  return normalized.split(/[-_\s]+/).map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join("");
+}
 function toEnumMemberName(value) {
   let result = value.split(/[-_\s]+/).map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join("").replace(/[^a-zA-Z0-9]/g, "");
   if (/^\d/.test(result)) {
@@ -637,7 +642,7 @@ function extractInlineEnums(schemas, options = {}) {
       if (property.type === "Enum") {
         const enumProp = property;
         if (Array.isArray(enumProp.enum) && enumProp.enum.length > 0) {
-          const typeName = `${schema.name}${propName.charAt(0).toUpperCase() + propName.slice(1)}`;
+          const typeName = `${schema.name}${toPascalCase(propName)}`;
           const displayName = resolveDisplayName2(enumProp.displayName, options);
           const hasLabels = enumProp.enum.some((v) => typeof v !== "string" && v.label !== void 0);
           if (hasLabels) {
@@ -666,7 +671,7 @@ function extractInlineEnums(schemas, options = {}) {
       if (property.type === "Select") {
         const selectProp = property;
         if (selectProp.options && selectProp.options.length > 0) {
-          const typeName = `${schema.name}${propName.charAt(0).toUpperCase() + propName.slice(1)}`;
+          const typeName = `${schema.name}${toPascalCase(propName)}`;
           const displayName = resolveDisplayName2(selectProp.displayName, options);
           const hasLabels = selectProp.options.some((v) => typeof v !== "string" && v.label !== void 0);
           if (hasLabels) {
@@ -2383,19 +2388,9 @@ Hint: Rename your schema enum to avoid conflict with plugin-provided enums`
 }
 
 // src/plugin.ts
-var import_fs = __toESM(require("fs"), 1);
 var import_path = __toESM(require("path"), 1);
-var import_url = require("url");
-var import_meta = {};
-var __filename = (0, import_url.fileURLToPath)(import_meta.url);
-var __dirname = import_path.default.dirname(__filename);
-var MODERN_DEFAULTS = {
-  modelsPath: "node_modules/.omnify/schemas",
-  stubsPath: false
-};
-var LEGACY_DEFAULTS = {
-  modelsPath: "types/schemas",
-  stubsPath: "omnify"
+var DEFAULTS = {
+  modelsPath: "resources/ts/omnify"
 };
 var TYPESCRIPT_CONFIG_SCHEMA = {
   fields: [
@@ -2403,8 +2398,8 @@ var TYPESCRIPT_CONFIG_SCHEMA = {
       key: "modelsPath",
       type: "path",
       label: "Schemas Output Path",
-      description: 'Directory for generated TypeScript types and Zod schemas. Use "node_modules/.omnify/schemas" for modern mode with @famgia/omnify-react.',
-      default: LEGACY_DEFAULTS.modelsPath,
+      description: "Directory for generated TypeScript types and Zod schemas.",
+      default: DEFAULTS.modelsPath,
       group: "output"
     },
     {
@@ -2414,69 +2409,15 @@ var TYPESCRIPT_CONFIG_SCHEMA = {
       description: "Generate Zod schemas alongside TypeScript types for form validation",
       default: true,
       group: "output"
-    },
-    {
-      key: "stubsPath",
-      type: "path",
-      label: "React Stubs Path",
-      description: "Directory for React utility stubs (hooks, components). Leave empty to disable. Recommended: use @famgia/omnify-react instead.",
-      default: LEGACY_DEFAULTS.stubsPath,
-      group: "output"
     }
   ]
 };
-function isNodeModulesPath(p) {
-  return p.includes("node_modules");
-}
 function resolveOptions(options) {
-  const modelsPath = options?.modelsPath ?? LEGACY_DEFAULTS.modelsPath;
-  const isModernMode = isNodeModulesPath(modelsPath);
-  const defaultStubsPath = isModernMode ? false : LEGACY_DEFAULTS.stubsPath;
   return {
-    modelsPath,
-    generateZodSchemas: options?.generateZodSchemas ?? true,
-    stubsPath: options?.stubsPath ?? defaultStubsPath,
-    isModernMode
+    modelsPath: options?.modelsPath ?? DEFAULTS.modelsPath,
+    generateZodSchemas: options?.generateZodSchemas ?? true
   };
 }
-var STUB_FILES = [
-  // Components
-  {
-    stub: "JapaneseNameField.tsx.stub",
-    output: "components/JapaneseNameField.tsx"
-  },
-  {
-    stub: "JapaneseAddressField.tsx.stub",
-    output: "components/JapaneseAddressField.tsx"
-  },
-  {
-    stub: "JapaneseBankField.tsx.stub",
-    output: "components/JapaneseBankField.tsx"
-  },
-  // Hooks
-  {
-    stub: "use-form-mutation.ts.stub",
-    output: "hooks/use-form-mutation.ts"
-  },
-  // Lib - validation utilities
-  {
-    stub: "zod-i18n.ts.stub",
-    output: "lib/zod-i18n.ts"
-  },
-  {
-    stub: "form-validation.ts.stub",
-    output: "lib/form-validation.ts"
-  },
-  // Rules - Japanese validation rules
-  {
-    stub: "rules/kana.ts.stub",
-    output: "lib/rules/kana.ts"
-  },
-  {
-    stub: "rules/index.ts.stub",
-    output: "lib/rules/index.ts"
-  }
-];
 function typescriptPlugin(options) {
   const resolved = resolveOptions(options);
   return {
@@ -2540,74 +2481,21 @@ function typescriptPlugin(options) {
           }
           return outputs;
         }
-      },
-      {
-        name: "typescript-stubs",
-        description: "Generate React utility stubs (hooks, components) - DEPRECATED: use @famgia/omnify-react",
-        generate: async (ctx) => {
-          if (resolved.stubsPath === false) {
-            return [];
-          }
-          if (ctx.logger) {
-            ctx.logger.warn(
-              "Stub generation is deprecated. Consider using @famgia/omnify-react package instead.\n  npm install @famgia/omnify-react\n  Then set stubsPath: false in your config."
-            );
-          }
-          const outputs = [];
-          const stubsDir = import_path.default.join(__dirname, "..", "stubs");
-          for (const { stub, output } of STUB_FILES) {
-            const stubPath = import_path.default.join(stubsDir, stub);
-            if (import_fs.default.existsSync(stubPath)) {
-              const content = import_fs.default.readFileSync(stubPath, "utf-8");
-              outputs.push({
-                path: `${resolved.stubsPath}/${output}`,
-                content,
-                type: "other",
-                skipIfExists: false
-                // Always overwrite - library files should stay in sync
-              });
-            }
-          }
-          outputs.push({
-            path: `${resolved.stubsPath}/components/index.ts`,
-            content: `export { JapaneseNameField, type JapaneseNameFieldProps } from './JapaneseNameField';
-export { JapaneseAddressField, type JapaneseAddressFieldProps } from './JapaneseAddressField';
-export { JapaneseBankField, type JapaneseBankFieldProps } from './JapaneseBankField';
-`,
-            type: "other",
-            skipIfExists: false
-          });
-          outputs.push({
-            path: `${resolved.stubsPath}/hooks/index.ts`,
-            content: `export { useFormMutation } from './use-form-mutation';
-`,
-            type: "other",
-            skipIfExists: false
-          });
-          outputs.push({
-            path: `${resolved.stubsPath}/lib/index.ts`,
-            content: `export { setZodLocale, getZodLocale, getZodMessage } from './zod-i18n';
-export { zodRule, requiredRule } from './form-validation';
-export * from './rules';
-`,
-            type: "other",
-            skipIfExists: false
-          });
-          return outputs;
-        }
       }
     ]
   };
 }
+var MODERN_DEFAULTS = DEFAULTS;
+var LEGACY_DEFAULTS = DEFAULTS;
 function typescriptModern(options) {
   return typescriptPlugin({
     ...options,
-    modelsPath: MODERN_DEFAULTS.modelsPath,
-    stubsPath: MODERN_DEFAULTS.stubsPath
+    modelsPath: options?.modelsPath ?? DEFAULTS.modelsPath
   });
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  DEFAULTS,
   LEGACY_DEFAULTS,
   MODERN_DEFAULTS,
   typescriptModern,

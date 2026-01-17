@@ -1,20 +1,11 @@
 import {
   generateTypeScript
-} from "./chunk-ABQSV5TY.js";
+} from "./chunk-UD6Y6KHP.js";
 
 // src/plugin.ts
-import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
-var __filename = fileURLToPath(import.meta.url);
-var __dirname = path.dirname(__filename);
-var MODERN_DEFAULTS = {
-  modelsPath: "node_modules/.omnify/schemas",
-  stubsPath: false
-};
-var LEGACY_DEFAULTS = {
-  modelsPath: "types/schemas",
-  stubsPath: "omnify"
+var DEFAULTS = {
+  modelsPath: "resources/ts/omnify"
 };
 var TYPESCRIPT_CONFIG_SCHEMA = {
   fields: [
@@ -22,8 +13,8 @@ var TYPESCRIPT_CONFIG_SCHEMA = {
       key: "modelsPath",
       type: "path",
       label: "Schemas Output Path",
-      description: 'Directory for generated TypeScript types and Zod schemas. Use "node_modules/.omnify/schemas" for modern mode with @famgia/omnify-react.',
-      default: LEGACY_DEFAULTS.modelsPath,
+      description: "Directory for generated TypeScript types and Zod schemas.",
+      default: DEFAULTS.modelsPath,
       group: "output"
     },
     {
@@ -33,69 +24,15 @@ var TYPESCRIPT_CONFIG_SCHEMA = {
       description: "Generate Zod schemas alongside TypeScript types for form validation",
       default: true,
       group: "output"
-    },
-    {
-      key: "stubsPath",
-      type: "path",
-      label: "React Stubs Path",
-      description: "Directory for React utility stubs (hooks, components). Leave empty to disable. Recommended: use @famgia/omnify-react instead.",
-      default: LEGACY_DEFAULTS.stubsPath,
-      group: "output"
     }
   ]
 };
-function isNodeModulesPath(p) {
-  return p.includes("node_modules");
-}
 function resolveOptions(options) {
-  const modelsPath = options?.modelsPath ?? LEGACY_DEFAULTS.modelsPath;
-  const isModernMode = isNodeModulesPath(modelsPath);
-  const defaultStubsPath = isModernMode ? false : LEGACY_DEFAULTS.stubsPath;
   return {
-    modelsPath,
-    generateZodSchemas: options?.generateZodSchemas ?? true,
-    stubsPath: options?.stubsPath ?? defaultStubsPath,
-    isModernMode
+    modelsPath: options?.modelsPath ?? DEFAULTS.modelsPath,
+    generateZodSchemas: options?.generateZodSchemas ?? true
   };
 }
-var STUB_FILES = [
-  // Components
-  {
-    stub: "JapaneseNameField.tsx.stub",
-    output: "components/JapaneseNameField.tsx"
-  },
-  {
-    stub: "JapaneseAddressField.tsx.stub",
-    output: "components/JapaneseAddressField.tsx"
-  },
-  {
-    stub: "JapaneseBankField.tsx.stub",
-    output: "components/JapaneseBankField.tsx"
-  },
-  // Hooks
-  {
-    stub: "use-form-mutation.ts.stub",
-    output: "hooks/use-form-mutation.ts"
-  },
-  // Lib - validation utilities
-  {
-    stub: "zod-i18n.ts.stub",
-    output: "lib/zod-i18n.ts"
-  },
-  {
-    stub: "form-validation.ts.stub",
-    output: "lib/form-validation.ts"
-  },
-  // Rules - Japanese validation rules
-  {
-    stub: "rules/kana.ts.stub",
-    output: "lib/rules/kana.ts"
-  },
-  {
-    stub: "rules/index.ts.stub",
-    output: "lib/rules/index.ts"
-  }
-];
 function typescriptPlugin(options) {
   const resolved = resolveOptions(options);
   return {
@@ -159,73 +96,20 @@ function typescriptPlugin(options) {
           }
           return outputs;
         }
-      },
-      {
-        name: "typescript-stubs",
-        description: "Generate React utility stubs (hooks, components) - DEPRECATED: use @famgia/omnify-react",
-        generate: async (ctx) => {
-          if (resolved.stubsPath === false) {
-            return [];
-          }
-          if (ctx.logger) {
-            ctx.logger.warn(
-              "Stub generation is deprecated. Consider using @famgia/omnify-react package instead.\n  npm install @famgia/omnify-react\n  Then set stubsPath: false in your config."
-            );
-          }
-          const outputs = [];
-          const stubsDir = path.join(__dirname, "..", "stubs");
-          for (const { stub, output } of STUB_FILES) {
-            const stubPath = path.join(stubsDir, stub);
-            if (fs.existsSync(stubPath)) {
-              const content = fs.readFileSync(stubPath, "utf-8");
-              outputs.push({
-                path: `${resolved.stubsPath}/${output}`,
-                content,
-                type: "other",
-                skipIfExists: false
-                // Always overwrite - library files should stay in sync
-              });
-            }
-          }
-          outputs.push({
-            path: `${resolved.stubsPath}/components/index.ts`,
-            content: `export { JapaneseNameField, type JapaneseNameFieldProps } from './JapaneseNameField';
-export { JapaneseAddressField, type JapaneseAddressFieldProps } from './JapaneseAddressField';
-export { JapaneseBankField, type JapaneseBankFieldProps } from './JapaneseBankField';
-`,
-            type: "other",
-            skipIfExists: false
-          });
-          outputs.push({
-            path: `${resolved.stubsPath}/hooks/index.ts`,
-            content: `export { useFormMutation } from './use-form-mutation';
-`,
-            type: "other",
-            skipIfExists: false
-          });
-          outputs.push({
-            path: `${resolved.stubsPath}/lib/index.ts`,
-            content: `export { setZodLocale, getZodLocale, getZodMessage } from './zod-i18n';
-export { zodRule, requiredRule } from './form-validation';
-export * from './rules';
-`,
-            type: "other",
-            skipIfExists: false
-          });
-          return outputs;
-        }
       }
     ]
   };
 }
+var MODERN_DEFAULTS = DEFAULTS;
+var LEGACY_DEFAULTS = DEFAULTS;
 function typescriptModern(options) {
   return typescriptPlugin({
     ...options,
-    modelsPath: MODERN_DEFAULTS.modelsPath,
-    stubsPath: MODERN_DEFAULTS.stubsPath
+    modelsPath: options?.modelsPath ?? DEFAULTS.modelsPath
   });
 }
 export {
+  DEFAULTS,
   LEGACY_DEFAULTS,
   MODERN_DEFAULTS,
   typescriptPlugin as default,

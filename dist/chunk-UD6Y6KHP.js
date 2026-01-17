@@ -321,6 +321,10 @@ function resolveDisplayName2(value, options = {}) {
     config: options.localeConfig
   });
 }
+function toPascalCase(value) {
+  const normalized = value.replace(/([a-z])([A-Z])/g, "$1_$2");
+  return normalized.split(/[-_\s]+/).map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join("");
+}
 function toEnumMemberName(value) {
   let result = value.split(/[-_\s]+/).map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join("").replace(/[^a-zA-Z0-9]/g, "");
   if (/^\d/.test(result)) {
@@ -608,7 +612,7 @@ function extractInlineEnums(schemas, options = {}) {
       if (property.type === "Enum") {
         const enumProp = property;
         if (Array.isArray(enumProp.enum) && enumProp.enum.length > 0) {
-          const typeName = `${schema.name}${propName.charAt(0).toUpperCase() + propName.slice(1)}`;
+          const typeName = `${schema.name}${toPascalCase(propName)}`;
           const displayName = resolveDisplayName2(enumProp.displayName, options);
           const hasLabels = enumProp.enum.some((v) => typeof v !== "string" && v.label !== void 0);
           if (hasLabels) {
@@ -637,7 +641,7 @@ function extractInlineEnums(schemas, options = {}) {
       if (property.type === "Select") {
         const selectProp = property;
         if (selectProp.options && selectProp.options.length > 0) {
-          const typeName = `${schema.name}${propName.charAt(0).toUpperCase() + propName.slice(1)}`;
+          const typeName = `${schema.name}${toPascalCase(propName)}`;
           const displayName = resolveDisplayName2(selectProp.displayName, options);
           const hasLabels = selectProp.options.some((v) => typeof v !== "string" && v.label !== void 0);
           if (hasLabels) {
@@ -2380,4 +2384,4 @@ export {
   generateRulesFiles,
   generateTypeScript
 };
-//# sourceMappingURL=chunk-ABQSV5TY.js.map
+//# sourceMappingURL=chunk-UD6Y6KHP.js.map

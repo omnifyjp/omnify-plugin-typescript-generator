@@ -24,55 +24,7 @@ import {
   toEnumName,
   toInterfaceName,
   toPropertyName
-} from "./chunk-ABQSV5TY.js";
-
-// src/stubs.ts
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-var __filename = fileURLToPath(import.meta.url);
-var __dirname = path.dirname(__filename);
-var STUB_FILES = [];
-function copyStubs(options) {
-  const { targetDir, skipIfExists = false } = options;
-  const stubsDir = path.join(__dirname, "..", "stubs");
-  const result = { copied: [], skipped: [] };
-  const directories = /* @__PURE__ */ new Map();
-  for (const { stub, output, indexExport } of STUB_FILES) {
-    const stubPath = path.join(stubsDir, stub);
-    const outputPath = path.join(targetDir, output);
-    const outputDir = path.dirname(outputPath);
-    const dirName = path.dirname(output).split("/")[0];
-    if (!directories.has(dirName)) {
-      directories.set(dirName, "");
-    }
-    directories.set(dirName, directories.get(dirName) + indexExport);
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true });
-    }
-    if (skipIfExists && fs.existsSync(outputPath)) {
-      result.skipped.push(output);
-      continue;
-    }
-    if (fs.existsSync(stubPath)) {
-      const content = fs.readFileSync(stubPath, "utf-8");
-      fs.writeFileSync(outputPath, content);
-      result.copied.push(output);
-    }
-  }
-  for (const [dirName, exports] of directories) {
-    const indexPath = path.join(targetDir, dirName, "index.ts");
-    if (skipIfExists && fs.existsSync(indexPath)) {
-      continue;
-    }
-    fs.writeFileSync(indexPath, exports);
-    result.copied.push(`${dirName}/index.ts`);
-  }
-  return result;
-}
-function getStubPaths() {
-  return STUB_FILES.map((s) => s.output);
-}
+} from "./chunk-UD6Y6KHP.js";
 
 // src/ai-guides/generator.ts
 import { existsSync, readdirSync } from "fs";
@@ -127,9 +79,16 @@ function shouldGenerateAIGuides(rootDir) {
     return true;
   }
 }
+
+// src/stubs.ts
+function copyStubs(_options) {
+  return {
+    copied: [],
+    skipped: []
+  };
+}
 export {
   DEFAULT_VALIDATION_TEMPLATES,
-  STUB_FILES,
   copyStubs,
   enumToUnionType,
   extractInlineEnums,
@@ -147,7 +106,6 @@ export {
   generateTypeScript,
   generateTypeScript as generateTypeScriptFiles,
   getPropertyType,
-  getStubPaths,
   getValidationMessages,
   mergeValidationTemplates,
   pluginEnumToTSEnum,
