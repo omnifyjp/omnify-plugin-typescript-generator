@@ -1,9 +1,7 @@
 "use strict";
-var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __export = (target, all) => {
   for (var name in all)
@@ -17,14 +15,6 @@ var __copyProps = (to, from, except, desc) => {
   }
   return to;
 };
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // src/plugin.ts
@@ -1805,7 +1795,7 @@ function generateBaseInterfaceFile(schemaName, schemas, options) {
 `);
   }
   if (iface.enumDependencies && iface.enumDependencies.length > 0) {
-    const schemaEnumPrefix = options.schemaEnumImportPrefix ?? (options.enumImportPrefix ? `../${options.enumImportPrefix}` : "../enum");
+    const schemaEnumPrefix = options.schemaEnumImportPrefix ?? (options.enumImportPrefix?.startsWith("@") ? options.enumImportPrefix : options.enumImportPrefix ? `../${options.enumImportPrefix}` : "../enum");
     const pluginEnumNames = new Set(
       options.pluginEnums ? Array.from(options.pluginEnums.keys()) : []
     );
@@ -2154,6 +2144,7 @@ function generateIndexFile(schemas, enums, pluginEnums, typeAliases, options) {
   const ext = getImportExt2(options);
   const isNodeModulesBase = options.baseImportPrefix?.startsWith("@");
   const commonImportPath = isNodeModulesBase ? `${options.baseImportPrefix}/common` : "./common";
+  const i18nImportPath = isNodeModulesBase ? `${options.baseImportPrefix}/i18n` : "./i18n";
   parts.push(`// Common Types
 `);
   parts.push(`export type { LocaleMap, Locale, ValidationRule, DateTimeString, DateString } from '${commonImportPath}${ext}';
@@ -2175,7 +2166,7 @@ function generateIndexFile(schemas, enums, pluginEnums, typeAliases, options) {
 `);
   parts.push(`  getMessages,
 `);
-  parts.push(`} from './i18n${ext}';
+  parts.push(`} from '${i18nImportPath}${ext}';
 
 `);
   const enumPrefix = options.enumImportPrefix ?? "./enum";
@@ -2388,7 +2379,6 @@ Hint: Rename your schema enum to avoid conflict with plugin-provided enums`
 }
 
 // src/plugin.ts
-var import_path = __toESM(require("path"), 1);
 var DEFAULTS = {
   modelsPath: "resources/ts/omnify"
 };
@@ -2429,29 +2419,39 @@ function typescriptPlugin(options) {
         name: "typescript-models",
         description: "Generate TypeScript model definitions",
         generate: async (ctx) => {
-          const modelsDir = import_path.default.dirname(resolved.modelsPath);
-          const frontendRoot = modelsDir.replace(/\/src\/.*$/, "");
-          const pluginEnumBase = `${frontendRoot}/node_modules/@omnify-client`;
-          const pluginEnumPath = `${pluginEnumBase}/enum`;
-          const hasPluginEnums = ctx.pluginEnums && ctx.pluginEnums.size > 0;
+          const omnifyBaseDir = "node_modules/@omnify-base";
           const files = generateTypeScript(ctx.schemas, {
             generateZodSchemas: resolved.generateZodSchemas,
             localeConfig: ctx.localeConfig,
             customTypes: ctx.customTypes,
             pluginEnums: ctx.pluginEnums,
-            pluginEnumImportPrefix: "@omnify-client/enum"
+            // All generated files (enums, base) go to @omnify-base - they shouldn't be edited
+            enumImportPrefix: "@omnify-base/enum",
+            pluginEnumImportPrefix: "@omnify-base/enum",
+            baseImportPrefix: "@omnify-base/schemas"
           });
           const outputs = [];
-          if (hasPluginEnums) {
+          const hasOmnifyClientFiles = files.some(
+            (f) => f.category === "enum" || f.category === "plugin-enum" || f.category === "base"
+          );
+          if (hasOmnifyClientFiles) {
             outputs.push({
-              path: `${pluginEnumBase}/package.json`,
+              path: `${omnifyBaseDir}/package.json`,
               content: JSON.stringify({
-                name: "@omnify-client",
+                name: "@omnify-base",
                 version: "0.0.0",
                 private: true,
-                main: "./enum/index.js",
+                type: "module",
                 exports: {
-                  "./enum/*": "./enum/*.js"
+                  // Wildcard exports for TypeScript bundlers (Vite, esbuild, etc.)
+                  "./enum/*": {
+                    types: "./enum/*.ts",
+                    default: "./enum/*.ts"
+                  },
+                  "./schemas/*": {
+                    types: "./schemas/*.ts",
+                    default: "./schemas/*.ts"
+                  }
                 }
               }, null, 2),
               type: "other",
@@ -2460,11 +2460,13 @@ function typescriptPlugin(options) {
           }
           for (const file of files) {
             let outputPath;
-            if (file.category === "plugin-enum") {
-              outputPath = `${pluginEnumPath}/${file.filePath}`;
-            } else if (file.category === "enum") {
-              const enumPath = resolved.modelsPath.replace(/\/schemas\/?$/, "/enum");
-              outputPath = `${enumPath}/${file.filePath}`;
+            if (file.category === "plugin-enum" || file.category === "enum") {
+              outputPath = `${omnifyBaseDir}/enum/${file.filePath}`;
+            } else if (file.category === "base") {
+              const fileName = file.filePath.replace(/^base\//, "");
+              outputPath = `${omnifyBaseDir}/schemas/${fileName}`;
+            } else if (file.overwrite && (file.filePath === "common.ts" || file.filePath === "i18n.ts")) {
+              outputPath = `${omnifyBaseDir}/schemas/${file.filePath}`;
             } else {
               outputPath = `${resolved.modelsPath}/${file.filePath}`;
             }

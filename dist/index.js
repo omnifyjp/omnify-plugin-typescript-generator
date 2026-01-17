@@ -24,7 +24,7 @@ import {
   toEnumName,
   toInterfaceName,
   toPropertyName
-} from "./chunk-UD6Y6KHP.js";
+} from "./chunk-VLDDJNHY.js";
 
 // src/ai-guides/generator.ts
 import { existsSync, readdirSync } from "fs";

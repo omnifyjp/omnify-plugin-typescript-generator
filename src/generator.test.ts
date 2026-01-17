@@ -728,7 +728,7 @@ describe('TypeScript Generator - LocalizedString対応', () => {
 });
 
 // ============================================================================
-// Plugin Enum Tests (@omnify-client/enum)
+// Plugin Enum Tests (@omnify-base/enum)
 // ============================================================================
 
 describe('TypeScript Generator - Plugin Enums', () => {
@@ -768,7 +768,7 @@ describe('TypeScript Generator - Plugin Enums', () => {
     it('generates plugin enum files with category "plugin-enum"', () => {
       const result = generateTypeScript(schemas, {
         pluginEnums,
-        pluginEnumImportPrefix: '@omnify-client/enum',
+        pluginEnumImportPrefix: '@omnify-base/enum',
       });
 
       // Find plugin enum files
@@ -786,7 +786,7 @@ describe('TypeScript Generator - Plugin Enums', () => {
     it('plugin enum files contain enum definition and helpers', () => {
       const result = generateTypeScript(schemas, {
         pluginEnums,
-        pluginEnumImportPrefix: '@omnify-client/enum',
+        pluginEnumImportPrefix: '@omnify-base/enum',
       });
 
       const prefectureFile = result.find(f => f.filePath === 'Prefecture.ts' && f.category === 'plugin-enum');
@@ -798,33 +798,33 @@ describe('TypeScript Generator - Plugin Enums', () => {
       expect(prefectureFile?.content).toContain('export function getPrefectureExtra');
     });
 
-    it('index file imports plugin enums from @omnify-client/enum', () => {
+    it('index file imports plugin enums from @omnify-base/enum', () => {
       const result = generateTypeScript(schemas, {
         pluginEnums,
-        pluginEnumImportPrefix: '@omnify-client/enum',
+        pluginEnumImportPrefix: '@omnify-base/enum',
       });
 
       const indexFile = result.find(f => f.filePath === 'index.ts');
 
-      expect(indexFile?.content).toContain("from '@omnify-client/enum/Prefecture'");
-      expect(indexFile?.content).toContain("from '@omnify-client/enum/BankAccountType'");
+      expect(indexFile?.content).toContain("from '@omnify-base/enum/Prefecture'");
+      expect(indexFile?.content).toContain("from '@omnify-base/enum/BankAccountType'");
       expect(indexFile?.content).toContain('Prefecture,');
       expect(indexFile?.content).toContain('PrefectureValues,');
       expect(indexFile?.content).toContain('isPrefecture,');
       expect(indexFile?.content).toContain('getPrefectureLabel,');
     });
 
-    it('base files import plugin enums from @omnify-client/enum', () => {
+    it('base files import plugin enums from @omnify-base/enum', () => {
       const result = generateTypeScript(schemas, {
         pluginEnums,
-        pluginEnumImportPrefix: '@omnify-client/enum',
+        pluginEnumImportPrefix: '@omnify-base/enum',
         enumImportPrefix: '../enum',
       });
 
       const userBaseFile = result.find(f => f.filePath === 'base/User.ts');
 
       // Should import Prefecture from plugin enum path, not regular enum path
-      expect(userBaseFile?.content).toContain("from '@omnify-client/enum/Prefecture'");
+      expect(userBaseFile?.content).toContain("from '@omnify-base/enum/Prefecture'");
       expect(userBaseFile?.content).not.toContain("from '../enum/plugin/Prefecture'");
     });
 
@@ -856,7 +856,7 @@ describe('TypeScript Generator - Plugin Enums', () => {
 
       const result = generateTypeScript(schemasWithEnum, {
         pluginEnums,
-        pluginEnumImportPrefix: '@omnify-client/enum',
+        pluginEnumImportPrefix: '@omnify-base/enum',
         enumImportPrefix: '../enum',
       });
 
@@ -873,7 +873,7 @@ describe('TypeScript Generator - Plugin Enums', () => {
       // Index should import them from different paths
       const indexFile = result.find(f => f.filePath === 'index.ts');
       expect(indexFile?.content).toContain("from '../enum/Status'"); // Schema enum
-      expect(indexFile?.content).toContain("from '@omnify-client/enum/Prefecture'"); // Plugin enum
+      expect(indexFile?.content).toContain("from '@omnify-base/enum/Prefecture'"); // Plugin enum
     });
   });
 
@@ -914,9 +914,9 @@ describe('TypeScript Generator - Plugin Enums', () => {
     it('base files use schemaEnumImportPrefix for schema enums', () => {
       const result = generateTypeScript(schemasWithEnum, {
         pluginEnums: nodeModulesPluginEnums,
-        pluginEnumImportPrefix: '@omnify-client/enum',
+        pluginEnumImportPrefix: '@omnify-base/enum',
         schemaEnumImportPrefix: '@omnify/enum',
-        baseImportPrefix: '@omnify-client/schemas',
+        baseImportPrefix: '@omnify-base/schemas',
       });
 
       const userBaseFile = result.find(f => f.filePath === 'base/User.ts');
@@ -926,12 +926,12 @@ describe('TypeScript Generator - Plugin Enums', () => {
       expect(userBaseFile?.content).toContain("from '@omnify/enum/UserStatus'");
 
       // Plugin enum (Prefecture) should use pluginEnumImportPrefix
-      expect(userBaseFile?.content).toContain("from '@omnify-client/enum/Prefecture'");
+      expect(userBaseFile?.content).toContain("from '@omnify-base/enum/Prefecture'");
     });
 
     it('common.ts has base category when baseImportPrefix starts with @', () => {
       const result = generateTypeScript(schemasWithEnum, {
-        baseImportPrefix: '@omnify-client/schemas',
+        baseImportPrefix: '@omnify-base/schemas',
       });
 
       const commonFile = result.find(f => f.filePath === 'common.ts');
@@ -951,7 +951,7 @@ describe('TypeScript Generator - Plugin Enums', () => {
 
     it('base files import common.ts with relative path when in node_modules', () => {
       const result = generateTypeScript(schemasWithEnum, {
-        baseImportPrefix: '@omnify-client/schemas',
+        baseImportPrefix: '@omnify-base/schemas',
       });
 
       const userBaseFile = result.find(f => f.filePath === 'base/User.ts');
@@ -977,7 +977,7 @@ describe('TypeScript Generator - Plugin Enums', () => {
 
     it('model files import base types from baseImportPrefix', () => {
       const result = generateTypeScript(schemasWithEnum, {
-        baseImportPrefix: '@omnify-client/schemas',
+        baseImportPrefix: '@omnify-base/schemas',
         generateZodSchemas: true,
       });
 
@@ -989,19 +989,19 @@ describe('TypeScript Generator - Plugin Enums', () => {
       expect(modelFile).toBeDefined();
 
       // Model file should import from baseImportPrefix
-      expect(modelFile?.content).toContain("from '@omnify-client/schemas/User'");
+      expect(modelFile?.content).toContain("from '@omnify-base/schemas/User'");
     });
 
     it('index.ts imports common from baseImportPrefix when in node_modules', () => {
       const result = generateTypeScript(schemasWithEnum, {
-        baseImportPrefix: '@omnify-client/schemas',
+        baseImportPrefix: '@omnify-base/schemas',
       });
 
       const indexFile = result.find(f => f.filePath === 'index.ts');
       expect(indexFile).toBeDefined();
 
       // Should import common types from node_modules path
-      expect(indexFile?.content).toContain("from '@omnify-client/schemas/common'");
+      expect(indexFile?.content).toContain("from '@omnify-base/schemas/common'");
       expect(indexFile?.content).not.toContain("from './common'");
     });
 
@@ -1019,14 +1019,14 @@ describe('TypeScript Generator - Plugin Enums', () => {
 
     it('i18n.ts imports LocaleMap from baseImportPrefix when in node_modules', () => {
       const result = generateTypeScript(schemasWithEnum, {
-        baseImportPrefix: '@omnify-client/schemas',
+        baseImportPrefix: '@omnify-base/schemas',
       });
 
       const i18nFile = result.find(f => f.filePath === 'i18n.ts');
       expect(i18nFile).toBeDefined();
 
       // Should import LocaleMap from node_modules path
-      expect(i18nFile?.content).toContain("from '@omnify-client/schemas/common'");
+      expect(i18nFile?.content).toContain("from '@omnify-base/schemas/common'");
       expect(i18nFile?.content).not.toContain("from './common'");
     });
   });

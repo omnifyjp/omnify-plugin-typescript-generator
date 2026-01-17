@@ -1829,7 +1829,7 @@ function generateBaseInterfaceFile(schemaName, schemas, options) {
 `);
   }
   if (iface.enumDependencies && iface.enumDependencies.length > 0) {
-    const schemaEnumPrefix = options.schemaEnumImportPrefix ?? (options.enumImportPrefix ? `../${options.enumImportPrefix}` : "../enum");
+    const schemaEnumPrefix = options.schemaEnumImportPrefix ?? (options.enumImportPrefix?.startsWith("@") ? options.enumImportPrefix : options.enumImportPrefix ? `../${options.enumImportPrefix}` : "../enum");
     const pluginEnumNames = new Set(
       options.pluginEnums ? Array.from(options.pluginEnums.keys()) : []
     );
@@ -2178,6 +2178,7 @@ function generateIndexFile(schemas, enums, pluginEnums, typeAliases, options) {
   const ext = getImportExt2(options);
   const isNodeModulesBase = options.baseImportPrefix?.startsWith("@");
   const commonImportPath = isNodeModulesBase ? `${options.baseImportPrefix}/common` : "./common";
+  const i18nImportPath = isNodeModulesBase ? `${options.baseImportPrefix}/i18n` : "./i18n";
   parts.push(`// Common Types
 `);
   parts.push(`export type { LocaleMap, Locale, ValidationRule, DateTimeString, DateString } from '${commonImportPath}${ext}';
@@ -2199,7 +2200,7 @@ function generateIndexFile(schemas, enums, pluginEnums, typeAliases, options) {
 `);
   parts.push(`  getMessages,
 `);
-  parts.push(`} from './i18n${ext}';
+  parts.push(`} from '${i18nImportPath}${ext}';
 
 `);
   const enumPrefix = options.enumImportPrefix ?? "./enum";

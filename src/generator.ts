@@ -210,14 +210,17 @@ function generateBaseInterfaceFile(
   // Add imports for enum dependencies
   if (iface.enumDependencies && iface.enumDependencies.length > 0) {
     // Schema enum prefix: use schemaEnumImportPrefix if provided (for node_modules base files)
+    // If enumImportPrefix starts with '@', it's an absolute package path (e.g., @omnify-base/enum)
     // Otherwise use relative path from base/ folder
     const schemaEnumPrefix = options.schemaEnumImportPrefix
-      ?? (options.enumImportPrefix ? `../${options.enumImportPrefix}` : '../enum');
+      ?? (options.enumImportPrefix?.startsWith('@') 
+          ? options.enumImportPrefix 
+          : (options.enumImportPrefix ? `../${options.enumImportPrefix}` : '../enum'));
     // Build set of plugin enum names for path resolution
     const pluginEnumNames = new Set(
       options.pluginEnums ? Array.from(options.pluginEnums.keys()) : []
     );
-    // Plugin enum import prefix (for node_modules/@omnify-client/enum)
+    // Plugin enum import prefix (for node_modules/@omnify-base/enum)
     const pluginEnumPrefix = options.pluginEnumImportPrefix ?? `${schemaEnumPrefix}/plugin`;
     for (const enumName of iface.enumDependencies) {
       // Plugin enums use pluginEnumImportPrefix, schema enums use schemaEnumPrefix
@@ -266,7 +269,7 @@ function generateBaseInterfaceFile(
 /**
  * Generates a single enum file.
  * @param enumDef - The enum definition
- * @param isPluginEnum - If true, uses 'plugin-enum' category for node_modules/@omnify-client output
+ * @param isPluginEnum - If true, uses 'plugin-enum' category for node_modules/@omnify-base output
  */
 function generateEnumFile(enumDef: TSEnum, isPluginEnum = false): TypeScriptFile {
   const parts: string[] = [generateBaseHeader()];
@@ -622,9 +625,10 @@ function generateIndexFile(
   const parts: string[] = [generateBaseHeader()];
   const ext = getImportExt(options);
 
-  // Determine common import path based on whether base files are in node_modules
+  // Determine import paths based on whether base files are in node_modules (@omnify-base)
   const isNodeModulesBase = options.baseImportPrefix?.startsWith('@');
   const commonImportPath = isNodeModulesBase ? `${options.baseImportPrefix}/common` : './common';
+  const i18nImportPath = isNodeModulesBase ? `${options.baseImportPrefix}/i18n` : './i18n';
 
   // Export common types
   parts.push(`// Common Types\n`);
@@ -639,7 +643,7 @@ function generateIndexFile(
   parts.push(`  validationMessages,\n`);
   parts.push(`  getMessage,\n`);
   parts.push(`  getMessages,\n`);
-  parts.push(`} from './i18n${ext}';\n\n`);
+  parts.push(`} from '${i18nImportPath}${ext}';\n\n`);
 
   const enumPrefix = options.enumImportPrefix ?? './enum';
 

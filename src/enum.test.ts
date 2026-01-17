@@ -381,10 +381,10 @@ describe('extractInlineEnums - Inline Enum Extraction', () => {
 
     const result = extractInlineEnums(schemas);
     expect(result).toHaveLength(2);
-    
+
     const statusEnum = result.find(e => e.typeAlias?.name === 'SubscriptionStatus');
     const billingEnum = result.find(e => e.typeAlias?.name === 'SubscriptionBillingCycle');
-    
+
     expect(statusEnum).toBeDefined();
     expect(billingEnum).toBeDefined();
   });

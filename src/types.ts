@@ -9,9 +9,9 @@ import type { LocaleConfig, CustomTypeDefinition, PluginEnumDefinition } from '@
 /**
  * File category for organizing output.
  * - schema: Model schemas (user-editable)
- * - base: Base files (auto-generated, goes to node_modules/@omnify-client/schemas)
+ * - base: Base files (auto-generated, goes to node_modules/@omnify-base/schemas)
  * - enum: Schema enums (user-editable)
- * - plugin-enum: Plugin enums (auto-generated, goes to node_modules/@omnify-client/enum)
+ * - plugin-enum: Plugin enums (auto-generated, goes to node_modules/@omnify-base/enum)
  */
 export type FileCategory = 'schema' | 'base' | 'enum' | 'plugin-enum';
 
@@ -97,15 +97,15 @@ export interface TypeScriptOptions {
   readonly useJsExtension?: boolean | undefined;
   /**
    * Import path prefix for plugin enums.
-   * Plugin enums are generated to node_modules/@omnify-client/enum/ and imported from this path.
-   * @example '@omnify-client/enum' - for node_modules/@omnify-client/enum with package alias
+   * Plugin enums are generated to node_modules/@omnify-base/enum/ and imported from this path.
+   * @example '@omnify-base/enum' - for node_modules/@omnify-base/enum with package alias
    * @default '../enum/plugin' - legacy behavior (plugin enums in enum/plugin/)
    */
   readonly pluginEnumImportPrefix?: string | undefined;
   /**
    * Import path prefix for base schema files.
-   * Base files are generated to node_modules/@omnify-client/schemas/ and imported from this path.
-   * @example '@omnify-client/schemas' - for node_modules/@omnify-client/schemas with package alias
+   * Base files are generated to node_modules/@omnify-base/schemas/ and imported from this path.
+   * @example '@omnify-base/schemas' - for node_modules/@omnify-base/schemas with package alias
    * @default './base' - legacy behavior (base files in schemas/base/)
    */
   readonly baseImportPrefix?: string | undefined;

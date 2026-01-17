@@ -809,7 +809,7 @@ export function formatZodSchemasSection(
  * Format user model file with Zod re-exports.
  * @param schemaName - The schema name
  * @param ext - Import extension ('.js' for ESM, '' for bundlers)
- * @param basePrefix - Import prefix for base files ('./base' or '@omnify-client/schemas')
+ * @param basePrefix - Import prefix for base files ('./base' or '@omnify-base/schemas')
  */
 export function formatZodModelFile(schemaName: string, ext: string = '', basePrefix: string = './base'): string {
   const lowerName = schemaName.charAt(0).toLowerCase() + schemaName.slice(1);

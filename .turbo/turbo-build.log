@@ -11,20 +11,20 @@ CLI Cleaning output folder
 ESM Build start
 CJS Build start
 ESM dist/index.js              3.00 KB
-ESM dist/plugin.js             3.58 KB
-ESM dist/chunk-UD6Y6KHP.js     78.71 KB
-ESM dist/plugin.js.map         8.35 KB
+ESM dist/plugin.js             4.14 KB
+ESM dist/chunk-VLDDJNHY.js     78.88 KB
 ESM dist/index.js.map          5.24 KB
-ESM dist/chunk-UD6Y6KHP.js.map 151.91 KB
-ESM ⚡️ Build success in 75ms
-CJS dist/plugin.cjs     83.14 KB
-CJS dist/index.cjs      82.97 KB
-CJS dist/plugin.cjs.map 160.02 KB
-CJS dist/index.cjs.map  158.66 KB
-CJS ⚡️ Build success in 76ms
+ESM dist/plugin.js.map         9.47 KB
+ESM dist/chunk-VLDDJNHY.js.map 152.30 KB
+ESM ⚡️ Build success in 48ms
+CJS dist/plugin.cjs     83.24 KB
+CJS dist/index.cjs      83.14 KB
+CJS dist/plugin.cjs.map 161.51 KB
+CJS dist/index.cjs.map  159.05 KB
+CJS ⚡️ Build success in 55ms
 DTS Build start
-DTS ⚡️ Build success in 2748ms
-DTS dist/index.d.ts   15.93 KB
+DTS ⚡️ Build success in 2684ms
+DTS dist/index.d.ts   15.92 KB
 DTS dist/plugin.d.ts  2.03 KB
-DTS dist/index.d.cts  15.93 KB
+DTS dist/index.d.cts  15.92 KB
 DTS dist/plugin.d.cts 2.03 KB
