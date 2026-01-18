@@ -1,6 +1,6 @@
 {
   "name": "@famgia/omnify-typescript",
-  "version": "0.0.150",
+  "version": "0.0.151",
   "description": "TypeScript type definitions generator for Omnify schemas",
   "type": "module",
   "main": "./dist/index.cjs",
