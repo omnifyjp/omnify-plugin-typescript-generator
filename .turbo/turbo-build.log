@@ -11,20 +11,20 @@
 [34mCLI[39m Cleaning output folder
 [34mESM[39m Build start
 [34mCJS[39m Build start
+[32mESM[39m [1mdist/index.js              [22m[32m3.00 KB[39m
 [32mESM[39m [1mdist/plugin.js             [22m[32m4.14 KB[39m
 [32mESM[39m [1mdist/chunk-VLDDJNHY.js     [22m[32m78.88 KB[39m
-[32mESM[39m [1mdist/index.js              [22m[32m3.00 KB[39m
-[32mESM[39m [1mdist/chunk-VLDDJNHY.js.map [22m[32m152.30 KB[39m
-[32mESM[39m [1mdist/plugin.js.map         [22m[32m9.47 KB[39m
 [32mESM[39m [1mdist/index.js.map          [22m[32m5.24 KB[39m
-[32mESM[39m ⚡️ Build success in 76ms
-[32mCJS[39m [1mdist/index.cjs      [22m[32m83.14 KB[39m
+[32mESM[39m [1mdist/plugin.js.map         [22m[32m9.47 KB[39m
+[32mESM[39m [1mdist/chunk-VLDDJNHY.js.map [22m[32m152.30 KB[39m
+[32mESM[39m ⚡️ Build success in 37ms
 [32mCJS[39m [1mdist/plugin.cjs     [22m[32m83.24 KB[39m
-[32mCJS[39m [1mdist/index.cjs.map  [22m[32m159.05 KB[39m
+[32mCJS[39m [1mdist/index.cjs      [22m[32m83.14 KB[39m
 [32mCJS[39m [1mdist/plugin.cjs.map [22m[32m161.51 KB[39m
-[32mCJS[39m ⚡️ Build success in 76ms
+[32mCJS[39m [1mdist/index.cjs.map  [22m[32m159.05 KB[39m
+[32mCJS[39m ⚡️ Build success in 37ms
 DTS Build start
-DTS ⚡️ Build success in 2703ms
+DTS ⚡️ Build success in 1291ms
 DTS dist/index.d.ts   15.92 KB
 DTS dist/plugin.d.ts  2.03 KB
 DTS dist/index.d.cts  15.92 KB
