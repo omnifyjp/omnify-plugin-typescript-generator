@@ -1,5 +1,4 @@
 
-
-> @famgia/omnify-typescript@0.0.154 typecheck /Users/f.satoshi/Herd/omnify-ts/packages/omnify-plugin-typescript-generator
+> @famgia/omnify-typescript@2.0.1 typecheck /Users/f.satoshi/Herd/omnify-ts/packages/omnify-plugin-typescript-generator
 > tsc --noEmit
 
